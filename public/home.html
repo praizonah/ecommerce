@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRASUFAVIC - Premium Accessories</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8e8e8;
+            color: #333;
+            padding-top: 0;
+        }
+
+        header {
+            background: #4a4a4a;
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: none;
+            animation: slideDown 0.6s ease-out;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 900;
+            color: #d4af37;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        #cart-icon {
+            font-size: 18px;
+            font-weight: 700;
+            color: #d4af37;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        #cart-icon:hover {
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .card {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 40px 20px;
+            background: #f0f0f0;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card h1 {
+            font-size: 32px;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        #welcome {
+            font-size: 16px;
+            color: #d4af37;
+            font-weight: 600;
+            margin-bottom: 30px;
+            letter-spacing: 0.5px;
+        }
+
+        .introduction {
+            background: white;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #d4af37;
+            line-height: 1.8;
+            animation: slideInLeft 0.7s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .introduction p {
+            font-size: 15px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .introduction b {
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .product-item {
+            background: white;
+            padding: 15px;
+            border-radius: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            animation: fadeInUp 0.6s ease-out both;
+            border-top: 3px solid transparent;
+        }
+
+        .product-item:nth-child(1) { animation-delay: 0.1s; }
+        .product-item:nth-child(2) { animation-delay: 0.2s; }
+        .product-item:nth-child(3) { animation-delay: 0.3s; }
+        .product-item:nth-child(4) { animation-delay: 0.4s; }
+
+        .product-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(212, 175, 55, 0.2);
+            border-top: 3px solid #d4af37;
+        }
+
+        .product-item h3 {
+            font-size: 14px;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .product-item p {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .product-price {
+            font-size: 18px;
+            color: #d4af37;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .product-item button {
+            width: 100%;
+            padding: 8px;
+            background: #1a1a1a;
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .product-item button:hover {
+            background: #d4af37;
+            color: #1a1a1a;
+            transform: translateY(-2px);
+        }
+
+        fieldset {
+            border: 2px solid #d4af37;
+            padding: 20px;
+            margin: 40px auto;
+            max-width: 600px;
+            background: white;
+            animation: slideInLeft 0.7s ease-out 0.2s both;
+        }
+
+        fieldset legend {
+            color: #1a1a1a;
+            font-weight: 700;
+            padding: 0 10px;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        .slider {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            background: #4a4a4a;
+            border-radius: 0;
+            margin: 0 auto;
+        }
+
+        .slides {
+            display: flex;
+            height: 100%;
+        }
+
+        .slide {
+            min-width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(212, 175, 55, 0.8);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+
+        .prev:hover, .next:hover {
+            background: #d4af37;
+            color: #1a1a1a;
+        }
+
+        .cart {
+            background: white;
+            padding: 30px;
+            border-left: 5px solid #d4af37;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            animation: slideInLeft 0.7s ease-out 0.3s both;
+        }
+
+        .cart h2 {
+            font-size: 24px;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        #cart-items {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            padding: 15px;
+            background: #f0f0f0;
+            margin-bottom: 12px;
+            border-left: 3px solid #d4af37;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .cart-item:hover {
+            background: #e8e8e8;
+            transform: translateX(5px);
+        }
+
+        .cart-item-name {
+            font-weight: 700;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .cart-item-details {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .cart-item-remove {
+            background: #d4af37;
+            color: #1a1a1a;
+            border: none;
+            padding: 5px 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 11px;
+            transition: all 0.3s ease;
+        }
+
+        .cart-item-remove:hover {
+            background: #1a1a1a;
+            color: #d4af37;
+        }
+
+        #cart-total {
+            font-size: 18px;
+            font-weight: 900;
+            color: #d4af37;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .checkout-link {
+            display: inline-block;
+            padding: 14px 40px;
+            background: #1a1a1a;
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .checkout-link:hover {
+            background: #d4af37;
+            color: #1a1a1a;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .logout-wrap {
+            text-align: right;
+            padding: 15px 30px;
+            margin-top: 0;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+
+        .logout-btn {
+            padding: 12px 35px;
+            background: #1a1a1a;
+            color: #ff4444;
+            border: 2px solid #ff4444;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff4444;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 68, 68, 0.3);
+        }
+
+        .footer {
+            background: #f0f0f0;
+            color: #333;
+            padding: 25px 20px;
+            text-align: center;
+            border-top: none;
+            margin-top: 60px;
+        }
+
+        .footer-box p {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .products {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .slider {
+                height: 250px;
+            }
+
+            .card {
+                margin: 20px auto;
+                padding: 25px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>PRASUFAVIC</h1>
+        <div id="cart-icon" onclick="scrollToCart()">🛒 Cart (<span id="cart-count">0</span>)</div>
+    </header>
+
+    <div class="card">
+        <h1>Home Page</h1>
+        <p id="welcome"></p>
+
+        <main>
+            <section class="introduction">
+                <p>
+                    <b>
+                        WELCOME TO PRASUFAVIC,
+                        <br />
+                        YOUR GO-TO ONLINE DESTINATION FOR TIMELESS AND FRESH FINDS.
+                        <br />
+                        WE BELIEVE SHOPPING SHOULD FEEL EFFORTLESS AND EVERY PRODUCT SHOULD
+                        TELL A STORY YOU'LL LOVE.
+                    </b>
+                </p>
+            </section>
+
+            <section class="products" id="product-list">
+                <!-- Products will be added dynamically -->
+            </section>
+
+            <fieldset>
+                <legend>
+                    <b>BLACK FRIDAY - NOVEMBER 14TH.</b><br />
+                    The countdown is on. Deal drops Friday, Nov 14 - 00:00UTC. <br />
+                    Up to 40% OFF these merch displayed below. <br />
+                    Ends Sunday midnight - Don't snooze...
+                </legend>
+                <section class="container">
+                    <div class="slider">
+                        <div class="slides">
+                            <img src="images/img1.jpg" class="slide active" alt="Black Friday Deal 1" />
+                            <img src="images/img2.jpg" class="slide" alt="Black Friday Deal 2" />
+                            <img src="images/img3.jpg" class="slide" alt="Black Friday Deal 3" />
+                            <img src="images/img4.jpg" class="slide" alt="Black Friday Deal 4" />
+                        </div>
+                        <button class="prev" onclick="prevSlide()">&lt;</button>
+                        <button class="next" onclick="nextSlide()">&gt;</button>
+                    </div>
+                </section>
+            </fieldset>
+
+            <section class="cart" id="cart">
+                <h2>Your Cart</h2>
+                <ul id="cart-items"></ul>
+                <p id="cart-total">Total: $0</p>
+                <div style="display: flex; gap: 15px; justify-content: space-between;">
+                    <a href="checkout.html" id="checkout-btn" class="checkout-link">Checkout</a>
+                    <button id="logout" class="logout-btn" aria-label="Logout">Logout</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-box">
+            <p>
+                © 2025 PRASUFAVIC. All rights reserved.
+                <br />
+                Contact us @ 09041473952.
+            </p>
+        </div>
+    </footer>
+
+    <script src="script2.js"></script>
+
+    <script>
+        // protect page: redirect to login if no token
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+        } else {
+            // optional: show basic welcome
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const email = payload?.email || payload?.id || '';
+                const userId = payload?.id || '';
+                
+                // Store userId for later use
+                if (userId) {
+                    localStorage.setItem('userId', userId);
+                }
+                
+                document.addEventListener('DOMContentLoaded', () => {
+                    const welcome = document.getElementById('welcome');
+                    welcome.textContent = `Welcome${email ? ' — ' + email : ''}`;
+                });
+            } catch (e) {
+                // invalid token -> redirect to login
+                localStorage.removeItem('token');
+                localStorage.removeItem('userId');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // logout
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'logout') logout();
+        });
+
+        // Slider functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            if (n >= slides.length) currentSlide = 0;
+            if (n < 0) currentSlide = slides.length - 1;
+            slides[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+    </script>
+</body>
+</html>

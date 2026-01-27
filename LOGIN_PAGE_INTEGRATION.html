@@ -1,0 +1,138 @@
+<!-- Add these snippets to your existing login.html page -->
+
+<!-- 1. Add this link in your login form, below the login button -->
+<div class="forgot-password-link">
+    <a href="forgot-password.html">Forgot Password?</a>
+</div>
+
+<!-- 2. Add this CSS styling to your stylesheet or <style> tag -->
+<style>
+    .forgot-password-link {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .forgot-password-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+
+    .forgot-password-link a:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+</style>
+
+<!-- Example Login Form HTML Structure (if needed) -->
+<!--
+<div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" required>
+        </div>
+        <button type="submit" class="btn-login">Login</button>
+        
+        <!-- ADD THIS -->
+        <div class="forgot-password-link">
+            <a href="forgot-password.html">Forgot Password?</a>
+        </div>
+        <!-- END ADD -->
+    </form>
+</div>
+-->
+
+<!-- 3. If you want to auto-detect reset links in your application -->
+<script>
+    // Auto-redirect if user has reset token in URL
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const resetToken = urlParams.get('resetToken');
+        
+        if (resetToken) {
+            // Redirect to reset-password page with token
+            window.location.href = `/reset-password.html?token=${resetToken}`;
+        }
+    })();
+</script>
+
+<!-- 4. Add password reset status messages (optional) -->
+<div id="resetStatus" style="display: none; padding: 15px; margin: 15px 0; border-radius: 5px; text-align: center;">
+    <div id="resetStatusContent"></div>
+</div>
+
+<script>
+    // Handle reset status from redirect
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const resetSuccess = urlParams.get('resetSuccess');
+        const resetError = urlParams.get('resetError');
+        
+        const statusDiv = document.getElementById('resetStatus');
+        const statusContent = document.getElementById('resetStatusContent');
+        
+        if (resetSuccess === 'true') {
+            statusContent.innerHTML = '✅ Password reset successfully! Please login with your new password.';
+            statusDiv.style.background = '#d4edda';
+            statusDiv.style.color = '#155724';
+            statusDiv.style.border = '1px solid #c3e6cb';
+            statusDiv.style.display = 'block';
+        } else if (resetError === 'true') {
+            statusContent.innerHTML = '❌ Password reset failed or link expired. Please try again.';
+            statusDiv.style.background = '#f8d7da';
+            statusDiv.style.color = '#721c24';
+            statusDiv.style.border = '1px solid #f5c6cb';
+            statusDiv.style.display = 'block';
+        }
+    })();
+</script>
+
+<!-- 5. Password strength indicator (optional addition to reset-password page) -->
+<script>
+    // Add to reset-password.html for real-time password validation
+    const passwordInput = document.getElementById('password');
+    
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            
+            // Check length
+            if (password.length >= 6) strength++;
+            // Check special characters
+            if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) strength++;
+            // Check uppercase
+            if (/[A-Z]/.test(password)) strength++;
+            // Check lowercase
+            if (/[a-z]/.test(password)) strength++;
+            // Check numbers
+            if (/[0-9]/.test(password)) strength++;
+            
+            // You can display strength indicator here
+            console.log('Password strength:', strength + '/5');
+        });
+    }
+</script>
+
+<!-- 6. Integration with existing login script (if you have one) -->
+<script>
+    // Add to your login-script.js
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add forgot password button functionality
+        const forgotPasswordLink = document.querySelector('.forgot-password-link a');
+        if (forgotPasswordLink) {
+            forgotPasswordLink.addEventListener('click', function(e) {
+                // Optional: Add analytics or logging
+                console.log('User clicked forgot password');
+            });
+        }
+    });
+</script>

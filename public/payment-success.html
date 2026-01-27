@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .success-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .checkmark {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .success-container h1 {
+            color: #28a745;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .success-container p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .order-details {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #28a745;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .order-items {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .order-items h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .item-name {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .item-amount {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .total-amount {
+            font-size: 24px;
+            color: #28a745;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .email-confirmation {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .email-confirmation p {
+            color: #856404;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .reference-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #0066cc;
+        }
+
+        .reference-info p {
+            color: #004085;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+
+        .session-id {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            word-break: break-all;
+            color: #333;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .success-container {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .checkmark {
+                font-size: 60px;
+            }
+
+            .success-container h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Verifying payment...</p>
+        </div>
+
+        <div id="successContent" style="display: none;">
+            <div class="checkmark">✅</div>
+            <h1>Payment Successful!</h1>
+            <p>Thank you for your order. Your payment has been processed successfully.</p>
+
+            <div class="email-confirmation">
+                <p><strong>📧 Confirmation Email:</strong></p>
+                <p>A detailed receipt has been sent to your email address. Please check your inbox (and spam folder) for the confirmation.</p>
+            </div>
+
+            <div class="order-details">
+                <div class="detail-row">
+                    <span class="detail-label">Session ID:</span>
+                    <span class="detail-value session-id" id="sessionId">Loading...</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Payment Status:</span>
+                    <span class="detail-value">✅ Completed</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date & Time:</span>
+                    <span class="detail-value" id="orderDate">Loading...</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Amount:</span>
+                    <span class="detail-value" id="totalAmount">Loading...</span>
+                </div>
+            </div>
+
+            <div class="order-items" id="orderItems" style="display: none;">
+                <h3>📦 Order Items</h3>
+                <div id="itemsList"></div>
+            </div>
+
+            <div class="reference-info">
+                <p><strong>ℹ️ Important:</strong></p>
+                <p>Your order reference ID is: <strong id="referenceId">Loading...</strong></p>
+                <p>Keep this for your records and customer support inquiries.</p>
+            </div>
+
+            <!-- Bank Transfer Status -->
+            <div id="bankTransferStatus"></div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="goToHome()">🏠 Back to Home</button>
+                <button class="btn btn-secondary" onclick="goToShop()">🛒 Continue Shopping</button>
+                <button class="btn btn-secondary" onclick="downloadReceipt()">📥 Download Receipt</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get session ID from URL
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = params.get('session_id');
+
+        // Verify payment
+        async function verifyPayment() {
+            if (!sessionId) {
+                document.getElementById('loading').style.display = 'none';
+                alert('Session ID not found. Please try again.');
+                window.location.href = '/home.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:4000/api/v1/payments/session/${sessionId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayPaymentDetails(data);
+                    
+                    // Trigger bank transfer after successful payment verification
+                    const totalAmount = (data.amount_total / 100);
+                    triggerBankTransfer(totalAmount, sessionId, data.payment_intent);
+                } else {
+                    alert('Error verifying payment: ' + (data.message || 'Unknown error'));
+                    window.location.href = '/home.html';
+                }
+            } catch (err) {
+                console.error('Error verifying payment:', err);
+                alert('Error verifying payment: ' + err.message);
+                window.location.href = '/home.html';
+            }
+        }
+
+        // Trigger bank transfer
+        async function triggerBankTransfer(amount, sessionId, paymentIntentId) {
+            try {
+                const response = await fetch('http://localhost:4000/api/v1/payments/transfer-to-bank', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: amount,
+                        sessionId: sessionId,
+                        paymentIntentId: paymentIntentId
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Bank transfer response:', data);
+
+                // Update UI to show bank transfer status
+                if (response.ok) {
+                    document.getElementById('bankTransferStatus').innerHTML = `
+                        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                            <strong>✅ Payment deposited to your bank account</strong><br>
+                            Amount: <strong>$${amount.toFixed(2)}</strong><br>
+                            Bank: <strong>Fairmoney</strong><br>
+                            Account: <strong>7041157599</strong><br>
+                            Account Name: <strong>Praise Onah</strong><br>
+                            <small style="color: #666; margin-top: 10px; display: block;">Funds will be available in 1-2 business days</small>
+                        </div>
+                    `;
+                } else {
+                    console.error('Bank transfer error:', data);
+                }
+            } catch (err) {
+                console.error('Error triggering bank transfer:', err);
+            }
+        }
+
+        // Display payment details
+        function displayPaymentDetails(sessionData) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('successContent').style.display = 'block';
+
+            // Set session ID
+            document.getElementById('sessionId').textContent = sessionData.id || sessionId;
+
+            // Set reference ID
+            const referenceId = sessionData.payment_intent || sessionData.id;
+            document.getElementById('referenceId').textContent = referenceId;
+
+            // Set total amount
+            const totalAmount = (sessionData.amount_total / 100).toFixed(2);
+            document.getElementById('totalAmount').textContent = '$' + totalAmount;
+
+            // Set date
+            const date = new Date();
+            document.getElementById('orderDate').textContent = date.toLocaleString();
+
+            // Display line items if available
+            if (sessionData.line_items && sessionData.line_items.data.length > 0) {
+                document.getElementById('orderItems').style.display = 'block';
+                const itemsList = document.getElementById('itemsList');
+                let itemsHTML = '';
+
+                sessionData.line_items.data.forEach(item => {
+                    const amount = (item.amount_total / 100).toFixed(2);
+                    itemsHTML += `
+                        <div class="item">
+                            <span class="item-name">${item.description} (x${item.quantity})</span>
+                            <span class="item-amount">$${amount}</span>
+                        </div>
+                    `;
+                });
+
+                itemsList.innerHTML = itemsHTML;
+            }
+
+            // Clear cart
+            localStorage.removeItem('cart');
+        }
+
+        // Navigation functions
+        function goToHome() {
+            window.location.href = '/home.html';
+        }
+
+        function goToShop() {
+            window.location.href = '/home.html';
+        }
+
+        function downloadReceipt() {
+            const referenceId = document.getElementById('referenceId').textContent;
+            const totalAmount = document.getElementById('totalAmount').textContent;
+            const orderDate = document.getElementById('orderDate').textContent;
+
+            const receiptText = `
+ORDER RECEIPT
+==========================================
+Session ID: ${sessionId}
+Reference ID: ${referenceId}
+Total Amount: ${totalAmount}
+Date: ${orderDate}
+Status: ✅ Payment Successful
+
+Thank you for your purchase!
+==========================================
+            `;
+
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(receiptText));
+            element.setAttribute('download', `receipt-${referenceId}.txt`);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        // Verify payment on page load
+        window.addEventListener('load', verifyPayment);
+    </script>
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet & Cash Out - My Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .wallet-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .wallet-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .wallet-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .wallet-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .wallet-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-top: 10px;
+        }
+
+        button.secondary:hover {
+            background: #e0e0e0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .status-message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            color: #333;
+        }
+
+        .history-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .history-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.failed {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            width: auto;
+            margin: 0;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .back-button {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .back-button:hover {
+            background: #f8f9fa;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 480px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .warning-message {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Wallet & Cash Out</h1>
+            <p>Manage your earnings and request cash outs</p>
+        </div>
+
+        <!-- Back Button -->
+        <button class="back-button" onclick="goBack()">← Back to Home</button>
+
+        <!-- Status Messages -->
+        <div id="successMessage" class="status-message success"></div>
+        <div id="errorMessage" class="status-message error"></div>
+        <div id="infoMessage" class="status-message info"></div>
+
+        <div class="content">
+            <!-- Left Column: Wallet Overview & Setup -->
+            <div class="card">
+                <h2>💳 Wallet Overview</h2>
+                <div id="walletLoading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+                <div id="walletContent" style="display: none;">
+                    <div class="wallet-info">
+                        <div class="wallet-item">
+                            <div class="wallet-label">Current Balance</div>
+                            <div class="wallet-value" id="currentBalance">$0.00</div>
+                        </div>
+                        <div class="wallet-item">
+                            <div class="wallet-label">Total Earned</div>
+                            <div class="wallet-value" id="totalEarned">$0.00</div>
+                        </div>
+                    </div>
+
+                    <!-- Connect Account Section -->
+                    <div id="connectSection" style="display: none;">
+                        <h3 style="margin-top: 20px; margin-bottom: 15px; color: #333;">Stripe Connect Setup</h3>
+                        <p style="color: #666; margin-bottom: 15px; font-size: 0.9em;">
+                            Set up your Stripe Connect account to receive payouts to your bank account.
+                        </p>
+                        <div class="form-group">
+                            <label for="accountHolderName">Account Holder Name</label>
+                            <input type="text" id="accountHolderName" placeholder="Full Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="accountEmail">Email Address</label>
+                            <input type="email" id="accountEmail" placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="accountCountry">Country</label>
+                            <select id="accountCountry">
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="AU">Australia</option>
+                            </select>
+                        </div>
+                        <button onclick="createStripeConnect()">Setup Stripe Connect Account</button>
+                    </div>
+
+                    <!-- Account Details Section -->
+                    <div id="accountDetailsSection" style="display: none;">
+                        <h3 style="margin-top: 20px; margin-bottom: 15px; color: #333;">Account Status</h3>
+                        <div id="accountStatusContent"></div>
+                        <button onclick="getConnectAccountLink()" style="margin-top: 15px;">Complete Onboarding</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Cash Out Operations -->
+            <div class="card">
+                <h2>💸 Cash Out</h2>
+                
+                <div class="warning-message" id="insufficientFundsWarning" style="display: none;">
+                    You don't have enough balance to request a cash out. Your current balance is shown on the left.
+                </div>
+
+                <div class="form-group">
+                    <label for="cashOutAmount">Amount to Cash Out</label>
+                    <input type="number" id="cashOutAmount" placeholder="0.00" min="1" step="0.01">
+                    <small style="color: #666; font-size: 0.85em;">Minimum: $1.00</small>
+                </div>
+
+                <button onclick="requestCashOut()" id="cashOutBtn">Request Cash Out</button>
+
+                <div id="cashOutLoading" class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 10px;">Processing your cash out request...</p>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #333; margin-bottom: 15px;">Recent Transactions</h3>
+                    <div id="recentTransactions">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>No transactions yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Width: Cash Out History -->
+        <div class="card">
+            <h2>📊 Cash Out History</h2>
+            
+            <div class="tabs">
+                <button class="tab-button active" onclick="switchTab('all')">All</button>
+                <button class="tab-button" onclick="switchTab('completed')">Completed</button>
+                <button class="tab-button" onclick="switchTab('pending')">Pending</button>
+                <button class="tab-button" onclick="switchTab('failed')">Failed</button>
+            </div>
+
+            <div id="historyLoading" class="loading">
+                <div class="spinner"></div>
+            </div>
+
+            <div id="historyContent" style="display: none;">
+                <div id="allHistory" class="tab-content active">
+                    <div id="allHistoryTable"></div>
+                </div>
+                <div id="completedHistory" class="tab-content">
+                    <div id="completedHistoryTable"></div>
+                </div>
+                <div id="pendingHistory" class="tab-content">
+                    <div id="pendingHistoryTable"></div>
+                </div>
+                <div id="failedHistory" class="tab-content">
+                    <div id="failedHistoryTable"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:4000/api/v1';
+        let currentUserId = null;
+        let walletData = null;
+        let accountData = null;
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Get user ID from localStorage or session
+            let storedUserId = localStorage.getItem('userId');
+            
+            // If no userId but have token, extract from token
+            if (!storedUserId) {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    try {
+                        const payload = JSON.parse(atob(token.split('.')[1]));
+                        if (payload.id) {
+                            storedUserId = payload.id;
+                            localStorage.setItem('userId', storedUserId);
+                        }
+                    } catch (e) {
+                        console.error('Invalid token format', e);
+                    }
+                }
+            }
+            
+            if (storedUserId) {
+                currentUserId = storedUserId;
+                await loadWalletData();
+                await loadCashOutHistory();
+            } else {
+                showError('User not logged in. Please log in first.');
+                setTimeout(() => window.location.href = '/login.html', 2000);
+            }
+        });
+
+        async function loadWalletData() {
+            try {
+                document.getElementById('walletLoading').style.display = 'block';
+                document.getElementById('walletContent').style.display = 'none';
+
+                const response = await fetch(`${API_BASE_URL}/cashout/wallet/${currentUserId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    walletData = data.wallet;
+                    document.getElementById('currentBalance').textContent = `$${data.wallet.balance.toFixed(2)}`;
+                    document.getElementById('totalEarned').textContent = `$${data.wallet.totalEarned.toFixed(2)}`;
+
+                    // Check if user has Stripe Connect account
+                    if (data.stripeConnectId) {
+                        document.getElementById('connectSection').style.display = 'none';
+                        document.getElementById('accountDetailsSection').style.display = 'block';
+                        await loadAccountDetails();
+                    } else {
+                        document.getElementById('connectSection').style.display = 'block';
+                        document.getElementById('accountDetailsSection').style.display = 'none';
+                    }
+                } else {
+                    showError(data.message || 'Failed to load wallet data');
+                }
+            } catch (err) {
+                showError('Error loading wallet data: ' + err.message);
+            } finally {
+                document.getElementById('walletLoading').style.display = 'none';
+                document.getElementById('walletContent').style.display = 'block';
+            }
+        }
+
+        async function createStripeConnect() {
+            try {
+                const accountHolderName = document.getElementById('accountHolderName').value;
+                const accountEmail = document.getElementById('accountEmail').value;
+                const accountCountry = document.getElementById('accountCountry').value;
+
+                if (!accountHolderName || !accountEmail) {
+                    showError('Please fill in all fields');
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/cashout/connect-account/${currentUserId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: accountEmail,
+                        accountHolderName,
+                        country: accountCountry
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Stripe Connect account created successfully!');
+                    setTimeout(() => loadWalletData(), 1500);
+                } else {
+                    showError(data.error || 'Failed to create Stripe Connect account');
+                }
+            } catch (err) {
+                showError('Error: ' + err.message);
+            }
+        }
+
+        async function loadAccountDetails() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/cashout/connect-account-details/${currentUserId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    accountData = data.account;
+                    const statusContent = document.getElementById('accountStatusContent');
+                    
+                    let statusHTML = `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                            <p><strong>Email:</strong> ${data.account.email}</p>
+                            <p><strong>Charges Enabled:</strong> ${data.account.charges_enabled ? '✅ Yes' : '❌ No'}</p>
+                            <p><strong>Payouts Enabled:</strong> ${data.account.payouts_enabled ? '✅ Yes' : '❌ No'}</p>
+                    `;
+
+                    if (data.account.requirements && data.account.requirements.currently_due && data.account.requirements.currently_due.length > 0) {
+                        statusHTML += `<p><strong style="color: #d9534f;">Pending Requirements:</strong><br/>
+                            ${data.account.requirements.currently_due.join(', ')}
+                        </p>`;
+                    }
+
+                    statusHTML += '</div>';
+                    statusContent.innerHTML = statusHTML;
+                }
+            } catch (err) {
+                console.error('Error loading account details:', err);
+            }
+        }
+
+        async function getConnectAccountLink() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/cashout/connect-account-link/${currentUserId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        refreshUrl: window.location.href,
+                        returnUrl: window.location.href
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.location.href = data.url;
+                } else {
+                    showError(data.error || 'Failed to get account link');
+                }
+            } catch (err) {
+                showError('Error: ' + err.message);
+            }
+        }
+
+        async function requestCashOut() {
+            try {
+                const amount = parseFloat(document.getElementById('cashOutAmount').value);
+
+                if (!amount || amount <= 0) {
+                    showError('Please enter a valid amount');
+                    return;
+                }
+
+                if (amount < 1) {
+                    showError('Minimum cash out amount is $1.00');
+                    return;
+                }
+
+                if (walletData && amount > walletData.balance) {
+                    document.getElementById('insufficientFundsWarning').style.display = 'block';
+                    showError(`Insufficient balance. You have $${walletData.balance.toFixed(2)}`);
+                    return;
+                }
+
+                document.getElementById('insufficientFundsWarning').style.display = 'none';
+                document.getElementById('cashOutLoading').style.display = 'block';
+                document.getElementById('cashOutBtn').disabled = true;
+
+                const response = await fetch(`${API_BASE_URL}/cashout/cash-out/${currentUserId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Cash out request processed successfully!');
+                    document.getElementById('cashOutAmount').value = '';
+                    setTimeout(() => {
+                        loadWalletData();
+                        loadCashOutHistory();
+                    }, 1500);
+                } else {
+                    showError(data.message || data.error || 'Failed to process cash out');
+                }
+            } catch (err) {
+                showError('Error: ' + err.message);
+            } finally {
+                document.getElementById('cashOutLoading').style.display = 'none';
+                document.getElementById('cashOutBtn').disabled = false;
+            }
+        }
+
+        async function loadCashOutHistory() {
+            try {
+                document.getElementById('historyLoading').style.display = 'block';
+                document.getElementById('historyContent').style.display = 'none';
+
+                const response = await fetch(`${API_BASE_URL}/cashout/cash-out-history/${currentUserId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const requests = data.cashOutRequests || [];
+                    renderHistoryTables(requests);
+                    
+                    // Update recent transactions
+                    if (requests.length > 0) {
+                        const recent = requests.slice(0, 3);
+                        renderRecentTransactions(recent);
+                    }
+                } else {
+                    showError('Failed to load cash out history');
+                }
+            } catch (err) {
+                showError('Error loading history: ' + err.message);
+            } finally {
+                document.getElementById('historyLoading').style.display = 'none';
+                document.getElementById('historyContent').style.display = 'block';
+            }
+        }
+
+        function renderHistoryTables(requests) {
+            const categories = {
+                all: requests,
+                completed: requests.filter(r => r.status === 'completed'),
+                pending: requests.filter(r => r.status === 'pending'),
+                failed: requests.filter(r => r.status === 'failed')
+            };
+
+            Object.keys(categories).forEach(category => {
+                const tableId = `${category}HistoryTable`;
+                const requests = categories[category];
+
+                if (requests.length === 0) {
+                    document.getElementById(tableId).innerHTML = `
+                        <div class="empty-state">
+                            <p>No ${category} transactions</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = `
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Transfer ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                requests.forEach(req => {
+                    const date = new Date(req.requestedAt).toLocaleDateString();
+                    html += `
+                        <tr>
+                            <td>$${req.amount.toFixed(2)}</td>
+                            <td><span class="status-badge ${req.status}">${req.status.toUpperCase()}</span></td>
+                            <td>${date}</td>
+                            <td><code style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">${req.transferId || 'N/A'}</code></td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                document.getElementById(tableId).innerHTML = html;
+            });
+        }
+
+        function renderRecentTransactions(requests) {
+            let html = `
+                <table class="history-table" style="font-size: 0.9em;">
+                    <tbody>
+            `;
+
+            requests.forEach(req => {
+                const date = new Date(req.requestedAt).toLocaleDateString();
+                html += `
+                    <tr>
+                        <td>$${req.amount.toFixed(2)} - <span class="status-badge ${req.status}">${req.status}</span></td>
+                        <td style="text-align: right; color: #999;">${date}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('recentTransactions').innerHTML = html;
+        }
+
+        function switchTab(tab) {
+            // Update active button
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update active content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tab}History`).classList.add('active');
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function showInfo(message) {
+            const el = document.getElementById('infoMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function goBack() {
+            window.location.href = '/home.html';
+        }
+    </script>
+</body>
+</html>

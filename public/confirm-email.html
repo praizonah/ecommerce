@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Email</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirm-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .confirm-container h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .confirm-container p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+            font-size: 14px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: flex;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: flex;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .resend-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .resend-section h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .resend-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .resend-form input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .resend-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .resend-form button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .resend-form button:hover {
+            background: #764ba2;
+        }
+
+        .invalid-token {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .success-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .error-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .manual-confirm-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .manual-confirm-section h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .manual-confirm-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .manual-confirm-form input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .manual-confirm-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .manual-confirm-form button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .manual-confirm-form button:hover {
+            background: #764ba2;
+        }
+
+        .manual-confirm-message {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        #pendingTokenInfo {
+            font-size: 13px;
+            color: #0c5460;
+            line-height: 1.6;
+        }
+
+        #pendingTokenInfo strong {
+            color: #0c5460;
+        }
+
+        #pendingTokenInfo p {
+            margin: 8px 0;
+        }
+
+        .pending-status {
+            padding: 10px;
+            border-radius: 3px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        .pending-status.valid {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .pending-status.expired {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .pending-status.not-found {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d6d8db;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirm-container">
+        <h1>Confirm Your Email</h1>
+        <p>We're verifying your email address...</p>
+
+        <div class="invalid-token" id="invalidToken">
+            <p>⚠️ Invalid or expired confirmation link. Please request a new one.</p>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Confirming email...</p>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="btn-container" id="btnContainer">
+            <a href="login.html" class="btn">Go to Login</a>
+        </div>
+
+        <div class="resend-section" id="resendSection" style="display: none;">
+            <h3>Didn't receive the link?</h3>
+            <form id="resendForm" class="resend-form">
+                <input type="email" id="resendEmail" placeholder="Enter your email" required>
+                <button type="submit">Resend</button>
+            </form>
+            <div id="resendMessage"></div>
+        </div>
+
+        <div class="manual-confirm-section" id="manualConfirmSection" style="display: none;">
+            <h3>Or paste the confirmation link/token below:</h3>
+            <form id="manualConfirmForm" class="manual-confirm-form">
+                <input 
+                    type="text" 
+                    id="manualToken" 
+                    placeholder="Paste the full link or just the token code" 
+                    required
+                >
+                <button type="submit">Confirm Email</button>
+            </form>
+            <div id="manualConfirmMessage" class="manual-confirm-message"></div>
+        </div>
+
+        <div class="manual-confirm-section" id="pendingTokenSection" style="display: none;">
+            <h3>🔍 Check for pending verification token:</h3>
+            <form id="pendingTokenForm" class="manual-confirm-form">
+                <input 
+                    type="email" 
+                    id="pendingTokenEmail" 
+                    placeholder="Enter your email address" 
+                    required
+                >
+                <button type="submit">Check Pending Token</button>
+            </form>
+            <div id="pendingTokenMessage" class="manual-confirm-message"></div>
+            <div id="pendingTokenInfo" style="display: none; margin-top: 15px; padding: 15px; background: #e7f3ff; border-radius: 5px; border: 1px solid #b3d9ff;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get token from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const invalidToken = document.getElementById('invalidToken');
+        const loading = document.getElementById('loading');
+        const messageDiv = document.getElementById('message');
+        const btnContainer = document.getElementById('btnContainer');
+        const resendSection = document.getElementById('resendSection');
+        const resendForm = document.getElementById('resendForm');
+        const resendMessage = document.getElementById('resendMessage');
+        const manualConfirmSection = document.getElementById('manualConfirmSection');
+        const manualConfirmForm = document.getElementById('manualConfirmForm');
+        const manualTokenInput = document.getElementById('manualToken');
+        const manualConfirmMessage = document.getElementById('manualConfirmMessage');
+        const pendingTokenSection = document.getElementById('pendingTokenSection');
+        const pendingTokenForm = document.getElementById('pendingTokenForm');
+        const pendingTokenMessage = document.getElementById('pendingTokenMessage');
+        const pendingTokenInfo = document.getElementById('pendingTokenInfo');
+
+        // Function to handle email verification
+        async function verifyEmailWithToken(verificationToken) {
+            try {
+                const response = await fetch(`/api/v1/email/verify-email/${verificationToken}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                loading.style.display = 'none';
+
+                if (response.ok) {
+                    messageDiv.innerHTML = `<div><div class="success-icon">✅</div><div>${data.message}</div></div>`;
+                    messageDiv.className = 'message success';
+                    messageDiv.style.display = 'flex';
+                    btnContainer.style.display = 'block';
+                    
+                    // Redirect to homepage after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/home.html';
+                    }, 2000);
+                } else {
+                    messageDiv.innerHTML = `<div><div class="error-icon">❌</div><div>${data.message || 'Error confirming email'}</div></div>`;
+                    messageDiv.className = 'message error';
+                    messageDiv.style.display = 'flex';
+                    resendSection.style.display = 'block';
+                    manualConfirmSection.style.display = 'block';
+                    pendingTokenSection.style.display = 'block';
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                messageDiv.innerHTML = `<div><div class="error-icon">❌</div><div>${err.message}</div></div>`;
+                messageDiv.className = 'message error';
+                messageDiv.style.display = 'flex';
+                resendSection.style.display = 'block';
+                manualConfirmSection.style.display = 'block';
+                pendingTokenSection.style.display = 'block';
+            }
+        }
+
+        // Confirm email on page load
+        async function confirmEmail() {
+            if (!token) {
+                invalidToken.style.display = 'block';
+                loading.style.display = 'none';
+                resendSection.style.display = 'block';
+                manualConfirmSection.style.display = 'block';
+                pendingTokenSection.style.display = 'block';
+                return;
+            }
+
+            await verifyEmailWithToken(token);
+        }
+
+        // Confirm email when page loads
+        confirmEmail();
+
+        // Handle manual token submission
+        manualConfirmForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            let tokenValue = manualTokenInput.value.trim();
+
+            // Extract token from full URL if user pasted the entire link
+            if (tokenValue.includes('token=')) {
+                tokenValue = tokenValue.split('token=')[1].split('&')[0];
+            }
+
+            if (!tokenValue) {
+                manualConfirmMessage.innerHTML = `<p style="color: #721c24;">❌ Please enter a valid token</p>`;
+                return;
+            }
+
+            manualConfirmMessage.innerHTML = `<p style="color: #0066cc;">⏳ Confirming email...</p>`;
+            
+            await verifyEmailWithToken(tokenValue);
+        });
+
+        // Handle pending token check
+        pendingTokenForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('pendingTokenEmail').value;
+            pendingTokenMessage.innerHTML = `<p style="color: #0066cc;">⏳ Checking for pending token...</p>`;
+            pendingTokenInfo.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/v1/users/verify-email/pending', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.hasPendingToken) {
+                    pendingTokenMessage.innerHTML = `<p style="color: #155724;">✅ ${data.message}</p>`;
+                    
+                    // Display token information
+                    const expirationDate = new Date(data.tokenExpiresAt);
+                    const timeRemaining = data.hoursRemaining > 0 
+                        ? `${data.hoursRemaining} hour${data.hoursRemaining !== 1 ? 's' : ''} remaining`
+                        : 'Expired';
+                    
+                    pendingTokenInfo.innerHTML = `
+                        <strong>📧 Email:</strong> ${email}<br>
+                        <strong>⏰ Token Expires:</strong> ${expirationDate.toLocaleString()}<br>
+                        <strong>⏱️ Time Remaining:</strong> ${timeRemaining}<br><br>
+                        <div class="pending-status valid">
+                            ✅ You have a valid pending confirmation token!<br>
+                            Check your email for the confirmation link.
+                        </div>
+                    `;
+                    pendingTokenInfo.style.display = 'block';
+                } else if (!data.hasPendingToken && data.tokenExpired) {
+                    pendingTokenMessage.innerHTML = `<p style="color: #721c24;">❌ ${data.message}</p>`;
+                    
+                    pendingTokenInfo.innerHTML = `
+                        <strong>📧 Email:</strong> ${email}<br>
+                        <strong>⏰ Token Expired:</strong> ${new Date(data.tokenExpiresAt || new Date()).toLocaleString()}<br>
+                        <div class="pending-status expired">
+                            ⏳ Your confirmation token has expired.<br>
+                            Please resend confirmation email to get a new token.
+                        </div>
+                    `;
+                    pendingTokenInfo.style.display = 'block';
+                } else if (data.isEmailConfirmed) {
+                    pendingTokenMessage.innerHTML = `<p style="color: #155724;">✅ ${data.message}</p>`;
+                    
+                    pendingTokenInfo.innerHTML = `
+                        <strong>📧 Email:</strong> ${email}<br>
+                        <div class="pending-status valid">
+                            ✅ This email is already verified!<br>
+                            You can now login to your account.
+                        </div>
+                    `;
+                    pendingTokenInfo.style.display = 'block';
+                } else {
+                    pendingTokenMessage.innerHTML = `<p style="color: #721c24;">❌ ${data.message || 'No pending token found'}</p>`;
+                    
+                    pendingTokenInfo.innerHTML = `
+                        <strong>📧 Email:</strong> ${email}<br>
+                        <div class="pending-status not-found">
+                            ℹ️ No pending confirmation token found.<br>
+                            Please check the email address or register a new account.
+                        </div>
+                    `;
+                    pendingTokenInfo.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Pending token check error:', err);
+                pendingTokenMessage.innerHTML = `<p style="color: #721c24;">❌ ${err.message || 'Network error'}</p>`;
+            }
+        });
+
+        // Handle resend confirmation email
+        resendForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('resendEmail').value;
+            resendMessage.innerHTML = `<p style="color: #0066cc; margin-top: 10px;">⏳ Sending...</p>`;
+
+            try {
+                const response = await fetch('/api/v1/users/resend-confirmation-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                // Check if response has content
+                const contentType = response.headers.get('content-type');
+                let data = {};
+                
+                if (contentType && contentType.includes('application/json')) {
+                    try {
+                        data = await response.json();
+                    } catch (parseErr) {
+                        console.error('JSON parse error:', parseErr);
+                        data = { message: 'Server error - please try again' };
+                    }
+                } else {
+                    const text = await response.text();
+                    data = { message: text || 'Server error - please try again' };
+                }
+
+                if (response.ok) {
+                    resendMessage.innerHTML = `<p style="color: #155724; margin-top: 10px;">✅ ${data.message || 'Email sent successfully!'}</p>`;
+                    resendForm.reset();
+                } else {
+                    resendMessage.innerHTML = `<p style="color: #721c24; margin-top: 10px;">❌ ${data.message || 'Failed to send email'}</p>`;
+                }
+            } catch (err) {
+                console.error('Resend error:', err);
+                resendMessage.innerHTML = `<p style="color: #721c24; margin-top: 10px;">❌ ${err.message || 'Network error'}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRASUFAVIC - Premium Accessories Store</title>
+    <style>
+        header {
+            background: black;
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: none;
+            animation: slideDown 0.6s ease-out;
+            width: 100vw;
+            margin-left: calc(-50vw + 50%);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8e8e8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            text-decoration: none;
+            color: #d4af37;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: fadeInScale 0.8s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .logo:hover {
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+            transition: text-shadow 0.3s ease;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #d4af37;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 50%, #4a4a4a 100%);
+            color: white;
+            padding: 100px 40px;
+            text-align: center;
+            margin: -40px calc(-50vw + 50%) 60px calc(-50vw + 50%);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+            width: 100vw;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.2);
+            color: #d4af37;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            border: 1px solid #d4af37;
+            animation: slideInDown 0.6s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-banner h1 {
+            font-size: 56px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 900;
+            animation: slideInUp 0.7s ease-out 0.2s both;
+            line-height: 1.2;
+        }
+
+        .hero-banner .highlight {
+            color: #d4af37;
+        }
+
+        .hero-banner p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            color: #e0e0e0;
+            animation: slideInUp 0.7s ease-out 0.4s both;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: slideInUp 0.7s ease-out 0.6s both;
+        }
+
+        /* Features Section */
+        .features-section {
+            margin: 30px 0;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 40px 30px;
+            background: #f0f0f0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(212, 175, 55, 0.2);
+            border-top: 4px solid #d4af37;
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feature-card p {
+            color: #888;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* About Section */
+        .about-section {
+            background: #f0f0f0;
+            padding: 60px 40px;
+            margin: 60px 0;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            animation: fadeInUp 0.8s ease-out;
+            border-left: 5px solid #d4af37;
+        }
+
+        .about-section h2 {
+            font-size: 36px;
+            color: #1a1a1a;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .about-section p {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .about-highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .highlight-item {
+            padding: 20px;
+            background: #e8e8e8;
+            border-left: 3px solid #d4af37;
+            transition: all 0.3s ease;
+        }
+
+        .highlight-item:hover {
+            transform: translateX(5px);
+            background: #dcdcdc;
+        }
+
+        .highlight-item h4 {
+            color: #d4af37;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .highlight-item p {
+            font-size: 14px;
+            color: #888;
+            margin: 0;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);
+            color: white;
+            padding: 80px 40px;
+            text-align: center;
+            margin: 80px calc(-50vw + 50%) 0 calc(-50vw + 50%);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+            width: 100vw;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section h2 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 900;
+        }
+
+        .cta-section .highlight {
+            color: #d4af37;
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 40px;
+            border: none;
+            border-radius: 0;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: #1a1a1a;
+            color: #d4af37;
+            border: 2px solid #d4af37;
+        }
+
+        .btn-primary:hover {
+            background: #d4af37;
+            color: #1a1a1a;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #1a1a1a;
+            border: 2px solid #1a1a1a;
+        }
+
+        .btn-secondary:hover {
+            background: #1a1a1a;
+            color: #d4af37;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-light {
+            background: transparent;
+            color: #d4af37;
+            border: 2px solid #d4af37;
+        }
+
+        .btn-light:hover {
+            background: #d4af37;
+            color: #1a1a1a;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .section-title {
+            font-size: 36px;
+            margin: 50px 0 30px 0;
+            color: #1a1a1a;
+            border-left: 5px solid #d4af37;
+            padding-left: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: slideInLeft 0.7s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .hero-banner {
+                padding: 60px 20px;
+                margin: -40px -20px 40px -20px;
+            }
+
+            .hero-banner h1 {
+                font-size: 36px;
+            }
+
+            .hero-banner p {
+                font-size: 16px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .about-section {
+                padding: 40px 20px;
+            }
+
+            .about-section h2 {
+                font-size: 24px;
+            }
+
+            .cta-section {
+                padding: 50px 20px;
+            }
+
+            .cta-section h2 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a class="logo" href="index.html">✨ PRASUFAVIC</a>
+            <div class="nav-links">
+                <a href="login.html">Login</a>
+                <a href="register.html">Register</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div class="hero-content">
+            <span class="hero-badge">✨ Luxury Accessories ✨</span>
+            <h1>Elevate Your <span class="highlight">Style</span> with PRASUFAVIC</h1>
+            <p>Discover meticulously curated accessories that define elegance and sophistication. Each piece is handpicked to reflect timeless beauty and modern luxury.</p>
+            <div class="hero-buttons">
+                <a href="register.html" class="btn btn-primary">Start Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- About Section -->
+        <div class="about-section">
+            <h2>About PRASUFAVIC</h2>
+            <p>
+                Welcome to PRASUFAVIC, where luxury meets accessibility. We are a boutique accessories store dedicated to curating the finest collection of premium accessories for the modern connoisseur. Our mission is to help you express your unique style through carefully selected pieces that transcend trends and stand the test of time.
+            </p>
+            <p>
+                Each item in our collection is thoughtfully chosen by our expert team, ensuring that every accessory meets our rigorous standards for quality, craftsmanship, and design. From timeless classics to contemporary masterpieces, we celebrate the art of accessorizing.
+            </p>
+            <div class="about-highlights">
+                <div class="highlight-item">
+                    <h4>🎯 Curated Collections</h4>
+                    <p>Handpicked accessories that define elegance and personal expression.</p>
+                </div>
+                <div class="highlight-item">
+                    <h4>✨ Exclusive Designs</h4>
+                    <p>Unique pieces not found elsewhere, carefully sourced for you.</p>
+                </div>
+                <div class="highlight-item">
+                    <h4>💳 Secure Shopping</h4>
+                    <p>Safe transactions with flexible payment options for your peace of mind.</p>
+                </div>
+                <div class="highlight-item">
+                    <h4>👥 Expert Support</h4>
+                    <p>Dedicated customer service to assist you every step of your journey.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <h2 class="section-title">Why Choose PRASUFAVIC</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">💎</span>
+                    <h3>Premium Quality</h3>
+                    <p>Every accessory is crafted with the finest materials and exceptional attention to detail for unmatched quality.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🌍</span>
+                    <h3>Global Selection</h3>
+                    <p>Curated pieces from around the world, bringing exclusive designs and authentic craftsmanship to your collection.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Swift Delivery</h3>
+                    <p>Fast and reliable shipping with tracking at every step. Your accessories arrive safely and on time.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to Transform Your Look?</h2>
+            <p>Join thousands of style-conscious customers who trust PRASUFAVIC for their accessory needs.</p>
+            <div class="hero-buttons">
+                <a href="register.html" class="btn btn-light">Explore Collection</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background: #f0f0f0; color: #333; padding: 25px 20px; text-align: center; border-top: none;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <p style="margin-bottom: 10px; font-size: 13px; line-height: 1.6;">
+                <strong style="color: #d4af37;">Contact Us:</strong> 
+                <a href="tel:09041473952" style="color: #d4af37; text-decoration: none; font-weight: 600;">09041473952</a>
+            </p>
+            <p style="margin-bottom: 10px; font-size: 12px; color: #888;">
+                &copy; 2026 PRASUFAVIC. All Rights Reserved. | Premium Accessories for the Modern Connoisseur
+            </p>
+            <p style="font-size: 11px; color: #666; letter-spacing: 0.5px; margin: 0;">
+                Crafted with elegance. Designed for excellence.
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

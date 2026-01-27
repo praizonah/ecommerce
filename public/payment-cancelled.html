@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Cancelled</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .cancel-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .alert-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-10px);
+            }
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        .cancel-container h1 {
+            color: #dc3545;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .cancel-container p {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .reason-box {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .reason-box h3 {
+            color: #721c24;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .reason-box p {
+            color: #721c24;
+            font-size: 14px;
+            margin: 8px 0;
+        }
+
+        .reason-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .reason-box li {
+            color: #721c24;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .options-box {
+            background: #e7f3ff;
+            border: 2px solid #b8daff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .options-box h3 {
+            color: #004085;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .option {
+            color: #004085;
+            font-size: 14px;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #0066cc;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-support {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-support:hover {
+            background: #218838;
+        }
+
+        .support-info {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .support-info p {
+            color: #155724;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .support-info a {
+            color: #155724;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .support-info a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .cancel-container {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .alert-icon {
+                font-size: 60px;
+            }
+
+            .cancel-container h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cancel-container">
+        <div class="alert-icon">❌</div>
+        <h1>Payment Cancelled</h1>
+        <p>Your payment was not completed. Your cart items have been saved.</p>
+
+        <div class="reason-box">
+            <h3>Why was my payment cancelled?</h3>
+            <p>Your payment was cancelled for one of the following reasons:</p>
+            <ul>
+                <li>You clicked the back button during checkout</li>
+                <li>The payment was not completed within the session time</li>
+                <li>You chose to cancel the transaction</li>
+                <li>Your payment method was declined by your bank</li>
+                <li>Connection issues during payment processing</li>
+            </ul>
+        </div>
+
+        <div class="options-box">
+            <h3>What can I do now?</h3>
+            <div class="option">
+                <strong>✓ Try Again:</strong> Return to checkout with your items still in cart
+            </div>
+            <div class="option">
+                <strong>✓ Check Cart:</strong> Review your items and update quantities if needed
+            </div>
+            <div class="option">
+                <strong>✓ Continue Shopping:</strong> Browse more products and add them to cart
+            </div>
+            <div class="option">
+                <strong>✓ Contact Support:</strong> If you need assistance with payment issues
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-primary" onclick="goToCheckout()">
+                🛒 Back to Checkout
+            </button>
+            <button class="btn btn-secondary" onclick="goToCart()">
+                🛍️ View Cart
+            </button>
+            <button class="btn btn-secondary" onclick="goToShop()">
+                📦 Continue Shopping
+            </button>
+        </div>
+
+        <div class="support-info">
+            <p><strong>💬 Need Help?</strong></p>
+            <p>If you're experiencing payment issues or have questions about your order:</p>
+            <p><a href="mailto:support@example.com">📧 Contact Our Support Team</a></p>
+        </div>
+    </div>
+
+    <script>
+        function goToCheckout() {
+            window.location.href = '/checkout.html';
+        }
+
+        function goToCart() {
+            window.location.href = '/home.html';
+        }
+
+        function goToShop() {
+            window.location.href = '/home.html';
+        }
+
+        // Log cancellation for debugging
+        const params = new URLSearchParams(window.location.search);
+        const reason = params.get('reason') || 'No reason provided';
+        const sessionId = params.get('session_id');
+        
+        console.log('Payment Cancelled:', {
+            reason: reason,
+            sessionId: sessionId,
+            timestamp: new Date().toISOString()
+        });
+    </script>
+</body>
+</html>
