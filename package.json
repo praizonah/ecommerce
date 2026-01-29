@@ -2,11 +2,12 @@
   "name": "node.js-ex",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "api/index.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon index.js",
-    "build": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "echo 'Build complete'"
   },
   "author": "",
   "license": "ISC",

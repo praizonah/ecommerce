@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "public": true,
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": [
+    "PORT",
+    "MONGO_URL",
+    "PASSWS",
+    "JWT_SECRET",
+    "JWT_EXPIRES_IN",
+    "EMAIL_USER",
+    "EMAIL_PASSWORD",
+    "FRONTEND_URL",
+    "STRIPE_PUBLIC_KEY",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "RESEND_API_KEY",
+    "EMAILJS_SERVICE_ID",
+    "EMAILJS_TEMPLATE_ID",
+    "EMAILJS_PUBLIC_KEY",
+    "EMAILJS_PRIVATE_KEY"
+  ],
+  "functions": {
+    "api/index.js": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  }
+}

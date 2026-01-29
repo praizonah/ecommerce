@@ -4,14 +4,14 @@ import mongoose from "mongoose"
 import morgan from "morgan"
 import session from "express-session"
 import passport from "passport"
-import productRouters from "./routers/productRouters.js";
-import userRouters from "./routers/userRouters.js";
-import paymentRouters from "./routers/paymentRouters.js";
-import cashOutRouters from "./routers/cashOutRouters.js";
-import emailSetupRouter from "./routers/emailSetupRouter.js";
+import productRouters from "../routers/productRouters.js";
+import userRouters from "../routers/userRouters.js";
+import paymentRouters from "../routers/paymentRouters.js";
+import cashOutRouters from "../routers/cashOutRouters.js";
+import emailSetupRouter from "../routers/emailSetupRouter.js";
 import cors from "cors";
-import { testEmailConfiguration } from "./utils/emailService.js";
-import './utils/passportConfig.js';
+import { testEmailConfiguration } from "../utils/emailService.js";
+import '../utils/passportConfig.js';
 
 dotenv.config({path: './config.env'})
 
@@ -19,7 +19,7 @@ const app = express()
 
 // Stripe webhook - must be before body parsing
 app.post('/api/v1/payments/webhook', express.raw({type: 'application/json'}), async (req, res) => {
-  const { handleStripeWebhook } = await import('./controllers/paymentController.js');
+  const { handleStripeWebhook } = await import('../controllers/paymentController.js');
   handleStripeWebhook(req, res);
 });
 
@@ -32,7 +32,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false, // Set to true in production with HTTPS
+    secure: true, // Set to true in production with HTTPS
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
@@ -45,9 +45,15 @@ app.use(passport.session())
 // logging
 app.use(morgan('dev'))
 
-// CORS - allow requests from the dev server hosting static files (Live Server)
-// or allow all origins during local development. Adjust in production.
-app.use(cors({ origin: ['http://127.0.0.1:5500', 'http://localhost:5500'] }))
+// CORS - Updated for Vercel deployment
+const allowedOrigins = [
+  'http://127.0.0.1:5500', 
+  'http://localhost:5500',
+  process.env.FRONTEND_URL,
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
+].filter(Boolean);
+
+app.use(cors({ origin: allowedOrigins }))
 
 // mount API routers
 app.use('/api/v1/products', productRouters)
@@ -66,7 +72,7 @@ app.get('/health', (req, res) => {
 
 // Catch-all route - serve index.html for client-side routing
 app.get('/', (req, res) => {
-  res.sendFile(new URL('./public/index.html', import.meta.url).pathname);
+  res.sendFile(new URL('../public/index.html', import.meta.url).pathname);
 });
 
 //Connecting to the database
@@ -77,12 +83,4 @@ mongoose.connect(MONGO_URL).then((conn)=>{
     console.log(`could not connect to database: ${err}`);
 })    
 
-//Creating a server
-const PORT= process.env.PORT
-app.listen(PORT, async (err)=>{
-    err? console.log(err): console.log(`server is running on port: ${PORT}`)
-    
-    // Test email configuration on startup
-    console.log("\n");
-    await testEmailConfiguration();
-})
+export default app;
