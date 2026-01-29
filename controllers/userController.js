@@ -139,15 +139,13 @@ export const registerUser = async (req, res) => {
 // LOGIN USER (with Passport.js Local Strategy)
 export const loginUser = async (req, res, next) => {
   try {
-    // Validate input
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: "Please provide email and password" });
-    }
-
-    // Passport.js local strategy will handle authentication
-    // If we reach here, passport has already validated the user
+    // Passport.js local strategy has already validated the user
+    // req.user is set by passport middleware if authentication succeeds
     const user = req.user;
+
+    if (!user) {
+      return res.status(401).json({ message: "Authentication failed" });
+    }
 
     // Generate JWT token
     const token = signToken(user._id);
