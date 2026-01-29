@@ -19,7 +19,12 @@ import './utils/passportConfig.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({path: './config.env'})
+// Load config.env only if it exists (local development)
+try {
+  dotenv.config({path: path.join(__dirname, 'config.env')});
+} catch (err) {
+  // config.env not found - continue without it
+}
 
 const app = express()
 
