@@ -10,8 +10,14 @@ import paymentRouters from "./routers/paymentRouters.js";
 import cashOutRouters from "./routers/cashOutRouters.js";
 import emailSetupRouter from "./routers/emailSetupRouter.js";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import { testEmailConfiguration } from "./utils/emailService.js";
 import './utils/passportConfig.js';
+
+// ESM compatibility
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config({path: './config.env'})
 
@@ -32,7 +38,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false, // Set to true in production with HTTPS
+    secure: process.env.NODE_ENV === 'production', // true in production with HTTPS
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
@@ -45,9 +51,16 @@ app.use(passport.session())
 // logging
 app.use(morgan('dev'))
 
-// CORS - allow requests from the dev server hosting static files (Live Server)
-// or allow all origins during local development. Adjust in production.
-app.use(cors({ origin: ['http://127.0.0.1:5500', 'http://localhost:5500'] }))
+// CORS - Updated for Render deployment
+const allowedOrigins = [
+  'http://127.0.0.1:5500', 
+  'http://localhost:5500',
+  'http://localhost:4000',
+  process.env.FRONTEND_URL,
+  process.env.RENDER_EXTERNAL_URL || 'http://localhost:4000'
+].filter(Boolean);
+
+app.use(cors({ origin: allowedOrigins }))
 
 // mount API routers
 app.use('/api/v1/products', productRouters)
@@ -57,16 +70,21 @@ app.use('/api/v1/cashout', cashOutRouters)
 app.use('/api/v1/email', emailSetupRouter)
 
 // serve static files from the public directory
-app.use(express.static('./public'))
+app.use(express.static(path.join(__dirname, 'public')))
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Catch-all route - serve index.html for client-side routing
 app.get('/', (req, res) => {
-  res.sendFile(new URL('./public/index.html', import.meta.url).pathname);
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Fallback - serve index.html for any non-API routes (client-side routing)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 //Connecting to the database
@@ -78,7 +96,7 @@ mongoose.connect(MONGO_URL).then((conn)=>{
 })    
 
 //Creating a server
-const PORT= process.env.PORT
+const PORT= process.env.PORT || 4000
 app.listen(PORT, async (err)=>{
     err? console.log(err): console.log(`server is running on port: ${PORT}`)
     
@@ -86,3 +104,4 @@ app.listen(PORT, async (err)=>{
     console.log("\n");
     await testEmailConfiguration();
 })
+
