@@ -14,7 +14,6 @@ try {
   const requiredFiles = [
     'package.json',
     'public/index.html',
-    'config.env',
     'index.js',
     'api/index.js'
   ];
@@ -25,7 +24,17 @@ try {
       throw new Error(`Missing required file: ${file}`);
     }
   }
-  console.log('  All essential files present\n');
+  
+  // config.env is optional (only needed locally, not on Vercel)
+  const configEnvPath = path.join(__dirname, 'config.env');
+  const hasConfigEnv = fs.existsSync(configEnvPath);
+  
+  if (hasConfigEnv) {
+    console.log('  All essential files present (including config.env)\n');
+  } else {
+    console.log('  All essential files present');
+    console.log('  ℹ️  Note: config.env not found (expected on Vercel, use environment variables instead)\n');
+  }
 
   // 2. Verify node_modules is installed
   console.log('✓ Checking dependencies...');
@@ -54,23 +63,28 @@ try {
 
   // 5. Check environment variables
   console.log('✓ Checking environment variables...');
-  const configEnvPath = path.join(__dirname, 'config.env');
-  const configEnv = fs.readFileSync(configEnvPath, 'utf-8');
-  const requiredEnvVars = [
-    'MONGO_URL',
-    'JWT_SECRET',
-    'EMAIL_USER',
-    'EMAIL_PASSWORD',
-    'STRIPE_PUBLIC_KEY',
-    'STRIPE_SECRET_KEY'
-  ];
+  
+  if (hasConfigEnv) {
+    const configEnv = fs.readFileSync(configEnvPath, 'utf-8');
+    const requiredEnvVars = [
+      'MONGO_URL',
+      'JWT_SECRET',
+      'EMAIL_USER',
+      'EMAIL_PASSWORD',
+      'STRIPE_PUBLIC_KEY',
+      'STRIPE_SECRET_KEY'
+    ];
 
-  for (const envVar of requiredEnvVars) {
-    if (!configEnv.includes(envVar)) {
-      console.warn(`  ⚠️  Warning: Missing ${envVar} in config.env`);
+    for (const envVar of requiredEnvVars) {
+      if (!configEnv.includes(envVar)) {
+        console.warn(`  ⚠️  Warning: Missing ${envVar} in config.env`);
+      }
     }
+    console.log('  Environment variables checked\n');
+  } else {
+    console.log('  ℹ️  config.env not found (expected on Vercel)');
+    console.log('  Environment variables will be loaded from Vercel dashboard\n');
   }
-  console.log('  Environment variables checked\n');
 
   // 6. Verify public assets exist
   console.log('✓ Verifying public assets...');
