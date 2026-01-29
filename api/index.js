@@ -14,6 +14,7 @@ import emailSetupRouter from "../routers/emailSetupRouter.js";
 import cors from "cors";
 import { testEmailConfiguration } from "../utils/emailService.js";
 import '../utils/passportConfig.js';
+import serverless from 'serverless-http';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -87,18 +88,24 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
-
 // Fallback for all other routes - serve index.html for SPA
-app.get('*', (req, res) => {
+app.use((req, res, next) => {
+  // Only handle GET requests that are not API calls
+  if (req.method !== 'GET') return next();
+  if (req.path.startsWith('/api/')) return next();
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-//Connecting to the database
+//Connecting to the database (only if MONGO_URL is set)
 const MONGO_URL = process.env.MONGO_URL
-mongoose.connect(MONGO_URL).then((conn)=>{
-    console.log(`database connected successfully : ${conn.connection.host}`);
-}).catch((err)=>{
-    console.log(`could not connect to database: ${err}`);
-})    
+if (MONGO_URL) {
+  mongoose.connect(MONGO_URL).then((conn)=>{
+      console.log(`database connected successfully : ${conn.connection.host}`);
+  }).catch((err)=>{
+      console.log(`could not connect to database: ${err}`);
+  })    
+} else {
+  console.log('MONGO_URL not set - skipping database connection');
+}
 
-export default app;
+export default serverless(app);
