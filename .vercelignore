@@ -2,6 +2,12 @@ node_modules
 npm-debug.log
 .git
 .env
-.DS_Store
 .env.local
-.env.*.local
+.DS_Store
+config.env
+.vercelignore
+README.md
+DEPLOYMENT.md
+RENDER_DEPLOYMENT.md
+Procfile
+render.yaml

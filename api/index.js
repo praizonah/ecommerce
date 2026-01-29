@@ -4,6 +4,8 @@ import mongoose from "mongoose"
 import morgan from "morgan"
 import session from "express-session"
 import passport from "passport"
+import path from "path";
+import { fileURLToPath } from "url";
 import productRouters from "../routers/productRouters.js";
 import userRouters from "../routers/userRouters.js";
 import paymentRouters from "../routers/paymentRouters.js";
@@ -13,7 +15,10 @@ import cors from "cors";
 import { testEmailConfiguration } from "../utils/emailService.js";
 import '../utils/passportConfig.js';
 
-dotenv.config({path: './config.env'})
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({path: path.join(__dirname, '../config.env')})
 
 const app = express()
 
@@ -63,16 +68,21 @@ app.use('/api/v1/cashout', cashOutRouters)
 app.use('/api/v1/email', emailSetupRouter)
 
 // serve static files from the public directory
-app.use(express.static('./public'))
+app.use(express.static(path.join(__dirname, '../public')))
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Catch-all route - serve index.html for client-side routing
 app.get('/', (req, res) => {
-  res.sendFile(new URL('../public/index.html', import.meta.url).pathname);
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// Fallback for all other routes - serve index.html for SPA
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 //Connecting to the database
