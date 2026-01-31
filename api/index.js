@@ -130,10 +130,11 @@ const connectToDatabase = async () => {
       await mongoose.connect(MONGO_URL, {
         maxPoolSize: 5,
         minPoolSize: 1,
-        serverSelectionTimeoutMS: 30000,  // Increased from 3000ms to 30s for remote connections
+        serverSelectionTimeoutMS: 30000,
         socketTimeoutMS: 45000,
-        connectTimeoutMS: 30000,  // Increased from 3000ms to 30s
-        bufferCommands: true,  // Buffer commands while reconnecting
+        connectTimeoutMS: 30000,
+        bufferCommands: true,
+        bufferTimeoutMS: 30000,  // ⚠️ CRITICAL: Increase from default 10s to 30s
         maxIdleTimeMS: 10000,
       });
       mongoConnected = true;

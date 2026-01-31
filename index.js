@@ -142,10 +142,11 @@ if (MONGO_URL) {
   mongoose.connect(MONGO_URL, {
     maxPoolSize: 5,
     minPoolSize: 2,
-    serverSelectionTimeoutMS: 30000,  // Increased from 5000ms to 30s for remote connections
+    serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
-    connectTimeoutMS: 30000,  // Increased from 5000ms to 30s
-    bufferCommands: true,  // Buffer commands while reconnecting
+    connectTimeoutMS: 30000,
+    bufferCommands: true,
+    bufferTimeoutMS: 30000,  // ⚠️ CRITICAL: Increase from default 10s to 30s
     maxIdleTimeMS: 10000,
   }).then((conn)=>{
       console.log(`database connected successfully : ${conn.connection.host}`);
@@ -196,6 +197,18 @@ app.listen(PORT, async (err)=>{
     }
     console.log(`\n✅ Server is running on port: ${PORT}`);
     console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    
+    // Test MongoDB connection immediately on startup
+    if (MONGO_URL) {
+      try {
+        const adminDb = mongoose.connection.db.admin();
+        const pingResult = await adminDb.ping();
+        console.log('🔗 MongoDB connection verified with ping');
+      } catch (pingErr) {
+        console.warn('⚠️  MongoDB connection not fully established yet. Requests will trigger lazy connection.');
+      }
+    }
+    
     if (process.env.NODE_ENV === 'production' && process.env.PORT && process.env.FORCE_PORT) {
       console.warn('⚠️  Note: Railway provided PORT is', process.env.PORT, 'but FORCE_PORT is set to', process.env.FORCE_PORT);
       console.warn('If you experience connectivity issues, consider removing FORCE_PORT so the process listens on Railway\'s assigned port.');
