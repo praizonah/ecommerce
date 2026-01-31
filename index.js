@@ -50,53 +50,42 @@ app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 
 // Session configuration for Passport.js
-// Sessions are optional for this app (JWT-based auth is primary).
-// In production we avoid using MemoryStore. Enable sessions explicitly
-// by setting ENABLE_SESSIONS=true and installing `connect-mongo` if
-// you want persistent sessions backed by MongoDB.
-const enableSessions = process.env.ENABLE_SESSIONS === 'true' || process.env.NODE_ENV !== 'production';
-
-if (enableSessions) {
-  const sessionConfig = {
-    secret: process.env.JWT_SECRET || 'dev-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000
-    }
-  };
-
-  if (process.env.NODE_ENV === 'production' && process.env.MONGO_URL) {
-    // Try to dynamically add a Mongo-backed session store if available
-    (async () => {
-      try {
-        const { default: MongoStore } = await import('connect-mongo');
-        // connect-mongo v4 exposes create method via MongoStore.create
-        if (MongoStore && typeof MongoStore.create === 'function') {
-          sessionConfig.store = MongoStore.create({ mongoUrl: process.env.MONGO_URL });
-          console.log('ℹ️  Using MongoDB-backed session store (connect-mongo)');
-        } else if (MongoStore) {
-          // fallback for other exports
-          sessionConfig.store = MongoStore({ mongoUrl: process.env.MONGO_URL });
-          console.log('ℹ️  Using MongoDB-backed session store (connect-mongo fallback)');
-        }
-      } catch (err) {
-        console.warn('⚠️  connect-mongo not installed or failed to load. Sessions will use MemoryStore. Install connect-mongo for production: `npm install connect-mongo`');
-      } finally {
-        app.use(session(sessionConfig));
-      }
-    })();
-  } else {
-    // Development or sessions explicitly enabled without Mongo
-    app.use(session(sessionConfig));
+// Always enable sessions with sensible defaults for development/production
+const sessionConfig = {
+  secret: process.env.JWT_SECRET || 'dev-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000
   }
+};
 
-} else {
-  console.log('ℹ️  Sessions disabled (ENABLE_SESSIONS not set). Using JWT-only authentication is recommended in production.');
+// In production with MONGO_URL and connect-mongo available, use it
+// Otherwise fallback to MemoryStore (safe for development)
+if (process.env.NODE_ENV === 'production' && process.env.MONGO_URL) {
+  try {
+    const { default: MongoStore } = await import('connect-mongo');
+    if (MongoStore && typeof MongoStore.create === 'function') {
+      sessionConfig.store = MongoStore.create({ mongoUrl: process.env.MONGO_URL });
+      console.log('✅ Using MongoDB-backed session store (connect-mongo)');
+    } else if (MongoStore) {
+      sessionConfig.store = MongoStore({ mongoUrl: process.env.MONGO_URL });
+      console.log('✅ Using MongoDB-backed session store (connect-mongo fallback)');
+    }
+  } catch (err) {
+    console.warn('⚠️  connect-mongo not available. Using MemoryStore (not recommended for production). Install with: npm install connect-mongo');
+  }
 }
+
+// Apply session middleware BEFORE Passport
+app.use(session(sessionConfig));
+
+// Initialize Passport.js AFTER session middleware
+app.use(passport.initialize())
+app.use(passport.session())
 
 // Initialize Passport.js
 app.use(passport.initialize())
