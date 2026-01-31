@@ -57,14 +57,14 @@ app.use(passport.session())
 // logging
 app.use(morgan('dev'))
 
-// CORS - Updated for Render deployment
+// CORS - Updated for Railway deployment
 const allowedOrigins = [
   'http://127.0.0.1:5500', 
   'http://localhost:5500',
   'http://localhost:4000',
   'http://127.0.0.1:4000',
   process.env.FRONTEND_URL,
-  process.env.RENDER_EXTERNAL_URL || 'http://localhost:4000'
+  process.env.RAILWAY_STATIC_URL || process.env.RAILWAY_PUBLIC_URL || 'http://localhost:4000'
 ].filter(Boolean);
 
 app.use(cors({ 
@@ -101,11 +101,21 @@ app.get(/.*/, (req, res) => {
 
 //Connecting to the database
 const MONGO_URL = process.env.MONGO_URL
-mongoose.connect(MONGO_URL).then((conn)=>{
-    console.log(`database connected successfully : ${conn.connection.host}`);
-}).catch((err)=>{
-    console.log(`could not connect to database: ${err}`);
-})    
+if (MONGO_URL) {
+  mongoose.connect(MONGO_URL, {
+    maxPoolSize: 5,
+    minPoolSize: 2,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+    connectTimeoutMS: 5000,
+  }).then((conn)=>{
+      console.log(`database connected successfully : ${conn.connection.host}`);
+  }).catch((err)=>{
+      console.error(`could not connect to database: ${err}`);
+  });
+} else {
+  console.warn('MONGO_URL environment variable not set - database functionality disabled');
+}    
 
 //Creating a server
 const PORT= process.env.PORT || 4000
@@ -132,10 +142,11 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, async (err)=>{
-    err? console.log(err): console.log(`server is running on port: ${PORT}`)
-    
-    // Test email configuration on startup
-    console.log("\n");
-    await testEmailConfiguration();
+    if (err) {
+      console.error('Server startup error:', err);
+      process.exit(1);
+    }
+    console.log(`\n✅ Server is running on port: ${PORT}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
 })
 

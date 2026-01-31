@@ -1,0 +1,27 @@
+# Railway configuration for Node.js application
+# This file is used by Railway CLI and platform for deployment
+
+[build]
+# Railway auto-detects Node.js projects
+# No additional build configuration needed
+
+[deploy]
+# Start command - runs the production server
+startCommand = "npm start"
+
+# Port configuration - Railway injects PORT environment variable
+# The app should listen on process.env.PORT (default 3000)
+port = 3000
+
+# Restart policy for reliability
+restartPolicy = "on_failure"
+maxRetries = 5
+
+# Health check configuration
+[healthcheck]
+# Path to health endpoint
+path = "/health"
+# Interval in seconds
+interval = 30
+# Timeout in seconds
+timeout = 10

@@ -25,7 +25,7 @@ try {
     }
   }
   
-  // config.env is optional (only needed locally, not on Vercel)
+  // config.env is optional (only needed locally, not on Railway)
   const configEnvPath = path.join(__dirname, 'config.env');
   const hasConfigEnv = fs.existsSync(configEnvPath);
   
@@ -33,7 +33,7 @@ try {
     console.log('  All essential files present (including config.env)\n');
   } else {
     console.log('  All essential files present');
-    console.log('  ℹ️  Note: config.env not found (expected on Vercel, use environment variables instead)\n');
+    console.log('  ℹ️  Note: config.env not found (expected on Railway, use environment variables instead)\n');
   }
 
   // 2. Verify node_modules is installed
@@ -52,14 +52,14 @@ try {
   }
   console.log('  API structure verified\n');
 
-  // 4. Verify vercel.json exists
-  console.log('✓ Checking Vercel configuration...');
-  const vercelPath = path.join(__dirname, 'vercel.json');
-  if (!fs.existsSync(vercelPath)) {
-    throw new Error('vercel.json not found');
+  // 4. Verify railway.json exists
+  console.log('✓ Checking Railway configuration...');
+  const railwayPath = path.join(__dirname, 'railway.json');
+  if (!fs.existsSync(railwayPath)) {
+    throw new Error('railway.json not found');
   }
-  const vercelConfig = JSON.parse(fs.readFileSync(vercelPath, 'utf-8'));
-  console.log('  Vercel configuration valid\n');
+  const railwayConfig = JSON.parse(fs.readFileSync(railwayPath, 'utf-8'));
+  console.log('  Railway configuration valid\n');
 
   // 5. Check environment variables
   console.log('✓ Checking environment variables...');
@@ -82,8 +82,8 @@ try {
     }
     console.log('  Environment variables checked\n');
   } else {
-    console.log('  ℹ️  config.env not found (expected on Vercel)');
-    console.log('  Environment variables will be loaded from Vercel dashboard\n');
+    console.log('  ℹ️  config.env not found (expected on Railway)');
+    console.log('  Environment variables will be loaded from Railway dashboard\n');
   }
 
   // 6. Verify public assets exist
@@ -126,9 +126,9 @@ try {
   console.log('  🌐 Entry point: api/index.js');
   console.log('  🏠 Home page: public/index.html\n');
   console.log('Next steps:');
-  console.log('  1. Ensure all environment variables are set in Vercel Dashboard');
+  console.log('  1. Ensure all environment variables are set in Railway Dashboard');
   console.log('  2. Push changes to GitHub');
-  console.log('  3. Deploy to Vercel\n');
+  console.log('  3. Deploy to Railway\n');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
   process.exit(0);

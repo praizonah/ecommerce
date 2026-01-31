@@ -1,0 +1,54 @@
+# Railway ignore file - files to exclude from deployment
+
+# Dependencies
+node_modules/
+
+# Environment
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (exclude docs to reduce deployment size)
+*.md
+README.md
+DEPLOYMENT.md
+DEPLOYMENT_COMPLETE.md
+DEPLOYMENT_READINESS.md
+DOCUMENTATION_INDEX.md
+FINAL_DEPLOYMENT_REPORT.md
+CONFIGURATION_COMPLETE.md
+LOGIN_PAGE_INTEGRATION.html
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+
+# Test files
+*.test.js
+*.spec.js
+

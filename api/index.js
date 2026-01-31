@@ -12,7 +12,6 @@ import cashOutRouters from "../routers/cashOutRouters.js";
 import emailSetupRouter from "../routers/emailSetupRouter.js";
 import cors from "cors";
 import '../utils/passportConfig.js';
-import serverless from 'serverless-http';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,13 +20,13 @@ const __dirname = path.dirname(__filename);
 let isWarmUp = true;
 
 // Load config.env only if it exists (local development)
-// On Vercel, environment variables come from the dashboard
+// On Railway, environment variables come from the dashboard
 try {
   const configPath = path.join(__dirname, '../config.env');
   dotenv.config({path: configPath});
 } catch (err) {
-  // config.env not found - expected on Vercel
-  // Environment variables will come from Vercel dashboard
+  // config.env not found - expected on Railway
+  // Environment variables will come from Railway dashboard
 }
 
 const app = express()
@@ -58,14 +57,14 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-// CORS - Updated for Vercel deployment
+// CORS - Updated for Railway deployment
 const allowedOrigins = [
   'http://127.0.0.1:5500', 
   'http://localhost:5500',
   'http://localhost:4000',
   'http://127.0.0.1:4000',
   process.env.FRONTEND_URL,
-  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
+  process.env.RAILWAY_URL ? `https://${process.env.RAILWAY_URL}` : null
 ].filter(Boolean);
 
 app.use(cors({ 
@@ -183,4 +182,4 @@ app.use((err, req, res, next) => {
   }
 });
 
-export default serverless(app);
+export default app;
