@@ -73,6 +73,47 @@ app.use(cors({
   credentials: true
 }))
 
+//Connecting to the database (only if MONGO_URL is set)
+const MONGO_URL = process.env.MONGO_URL
+let mongoConnected = false;
+let mongoConnectionPromise = null;
+
+// Lazy connect function - only connect when needed
+const connectToDatabase = async () => {
+  if (mongoConnected) {
+    return;
+  }
+  
+  if (mongoConnectionPromise) {
+    return mongoConnectionPromise;
+  }
+
+  if (!MONGO_URL) {
+    console.log('MONGO_URL not set - skipping database connection');
+    return;
+  }
+
+  mongoConnectionPromise = (async () => {
+    try {
+      await mongoose.connect(MONGO_URL, {
+        maxPoolSize: 2,
+        minPoolSize: 0,
+        serverSelectionTimeoutMS: 3000,
+        socketTimeoutMS: 30000,
+        connectTimeoutMS: 3000,
+      });
+      mongoConnected = true;
+      console.log(`database connected: ${mongoose.connection.host}`);
+    } catch (err) {
+      console.error('MongoDB connection error:', err.message);
+      mongoConnectionPromise = null;
+      throw err;
+    }
+  })();
+
+  return mongoConnectionPromise;
+};
+
 // mount API routers
 app.use('/api/v1/products', productRouters)
 app.use('/api/v1/users', userRouters)
@@ -107,29 +148,18 @@ app.get(/^\/(?!api\/).*$/, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-//Connecting to the database (only if MONGO_URL is set)
-const MONGO_URL = process.env.MONGO_URL
-let mongoConnected = false;
-
-// Only connect once, reuse connection for subsequent invocations
-if (MONGO_URL && !mongoConnected) {
-  mongoose.connect(MONGO_URL, {
-    // Serverless connection pooling
-    maxPoolSize: 5,
-    minPoolSize: 1,
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-  }).then((conn)=>{
-      mongoConnected = true;
-      console.log(`database connected successfully : ${conn.connection.host}`);
-  }).catch((err)=>{
-      console.log(`could not connect to database: ${err}`);
-  })    
-} else if (MONGO_URL) {
-  console.log('MONGO_URL is set - using existing connection');
-} else {
-  console.log('MONGO_URL not set - skipping database connection');
-}
+// Middleware to connect to database before API requests
+app.use('/api', async (req, res, next) => {
+  if (MONGO_URL && !mongoConnected) {
+    try {
+      await connectToDatabase();
+    } catch (err) {
+      console.error('Failed to connect to database on request:', err.message);
+      // Continue anyway - some endpoints might not need DB
+    }
+  }
+  next();
+});
 
 // Centralized error handler to return JSON errors to clients (useful for axios)
 app.use((err, req, res, next) => {
