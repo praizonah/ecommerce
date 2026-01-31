@@ -4,8 +4,19 @@ import { User } from '../schemas/userSchemas.js';
 
 dotenv.config({ path: './config.env' });
 
-// Initialize Stripe
-const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
+// Initialize Stripe lazily - only when needed
+let stripeClient = null;
+
+const getStripeClient = () => {
+  if (!stripeClient) {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+    }
+    stripeClient = stripe(apiKey);
+  }
+  return stripeClient;
+};
 
 // Create or update Stripe Connect account
 export const createStripeConnectAccount = async (req, res) => {
@@ -28,7 +39,7 @@ export const createStripeConnectAccount = async (req, res) => {
     }
 
     // Create Stripe Connect account
-    const account = await stripeClient.accounts.create({
+    const account = await getStripeClient().accounts.create({
       type: 'express',
       email: email || user.email,
       business_type: businessType,
@@ -83,7 +94,7 @@ export const getConnectAccountLink = async (req, res) => {
     }
 
     // Create account link for onboarding
-    const accountLink = await stripeClient.accountLinks.create({
+    const accountLink = await getStripeClient().accountLinks.create({
       account: user.stripeConnectId,
       type: 'account_onboarding',
       refresh_url: refreshUrl || `${process.env.FRONTEND_URL}/cashout-onboarding`,
@@ -115,7 +126,7 @@ export const getConnectAccountDetails = async (req, res) => {
     }
 
     // Get account details
-    const account = await stripeClient.accounts.retrieve(user.stripeConnectId);
+    const account = await getStripeClient().accounts.retrieve(user.stripeConnectId);
 
     return res.status(200).json({
       message: 'Account details retrieved successfully',
@@ -216,7 +227,7 @@ export const requestCashOut = async (req, res) => {
     }
 
     // Check if account is ready for payouts
-    const account = await stripeClient.accounts.retrieve(user.stripeConnectId);
+    const account = await getStripeClient().accounts.retrieve(user.stripeConnectId);
     if (!account.payouts_enabled) {
       return res.status(400).json({ 
         message: 'Account is not ready for payouts. Please complete onboarding.',
@@ -226,7 +237,7 @@ export const requestCashOut = async (req, res) => {
 
     try {
       // Create transfer to connected account
-      const transfer = await stripeClient.transfers.create({
+      const transfer = await getStripeClient().transfers.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency: 'usd',
         destination: user.stripeConnectId,
@@ -403,7 +414,7 @@ export const payoutBalance = async (req, res) => {
     }
 
     // Create payout for connected account
-    const payout = await stripeClient.payouts.create(
+    const payout = await getStripeClient().payouts.create(
       {
         amount: Math.round(amount * 100),
         currency: 'usd',
