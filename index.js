@@ -48,25 +48,25 @@ try {
 
 // Debug output
 console.log('\n📋 Environment Variable Status:');
-const MONGO_URL = process.env.MONGO_URL;
-const JWT_SECRET = process.env.JWT_SECRET;
-const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+const mongoUrlDebug = process.env.MONGO_URL;
+const jwtSecretDebug = process.env.JWT_SECRET;
+const stripeKeyDebug = process.env.STRIPE_SECRET_KEY;
 
-if (MONGO_URL) {
-  console.log('✅ MONGO_URL is set:', MONGO_URL.substring(0, 60) + '...');
+if (mongoUrlDebug) {
+  console.log('✅ MONGO_URL is set:', mongoUrlDebug.substring(0, 60) + '...');
 } else {
   console.error('❌ MONGO_URL is NOT set!');
   console.error('   Check: config.env exists in project root?');
   console.error('   Check: MONGO_URL line in config.env?');
 }
 
-if (JWT_SECRET) {
+if (jwtSecretDebug) {
   console.log('✅ JWT_SECRET is set');
 } else {
   console.warn('⚠️  JWT_SECRET not set, using fallback');
 }
 
-if (STRIPE_KEY) {
+if (stripeKeyDebug) {
   console.log('✅ STRIPE_SECRET_KEY is set');
 } else {
   console.warn('⚠️  STRIPE_SECRET_KEY not set');
