@@ -158,13 +158,12 @@ if (MONGO_URL) {
 }    
 
 // Creating a server
-// Determine port with safety for Railway: prefer FORCE_PORT in production if set,
-// otherwise use Railway's provided `PORT` or fallback to 4000 for local dev.
+// Determine port: use 8080 in production, 4000 in development
 let PORT;
 if (process.env.NODE_ENV === 'production') {
-  // If you need to force the app to listen on 4000 in production,
-  // set the environment variable `FORCE_PORT=4000` in Railway variables.
-  PORT = process.env.FORCE_PORT ? Number(process.env.FORCE_PORT) : (process.env.PORT || 4000);
+  // Use 8080 as default port in production
+  // Can be overridden by FORCE_PORT env var if needed
+  PORT = process.env.FORCE_PORT ? Number(process.env.FORCE_PORT) : (process.env.PORT || 8080);
 } else {
   PORT = process.env.PORT || 4000;
 }
