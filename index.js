@@ -142,9 +142,11 @@ if (MONGO_URL) {
   mongoose.connect(MONGO_URL, {
     maxPoolSize: 5,
     minPoolSize: 2,
-    serverSelectionTimeoutMS: 5000,
+    serverSelectionTimeoutMS: 30000,  // Increased from 5000ms to 30s for remote connections
     socketTimeoutMS: 45000,
-    connectTimeoutMS: 5000,
+    connectTimeoutMS: 30000,  // Increased from 5000ms to 30s
+    bufferCommands: true,  // Buffer commands while reconnecting
+    maxIdleTimeMS: 10000,
   }).then((conn)=>{
       console.log(`database connected successfully : ${conn.connection.host}`);
   }).catch((err)=>{

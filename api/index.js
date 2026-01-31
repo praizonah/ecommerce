@@ -128,11 +128,13 @@ const connectToDatabase = async () => {
   mongoConnectionPromise = (async () => {
     try {
       await mongoose.connect(MONGO_URL, {
-        maxPoolSize: 2,
-        minPoolSize: 0,
-        serverSelectionTimeoutMS: 3000,
-        socketTimeoutMS: 30000,
-        connectTimeoutMS: 3000,
+        maxPoolSize: 5,
+        minPoolSize: 1,
+        serverSelectionTimeoutMS: 30000,  // Increased from 3000ms to 30s for remote connections
+        socketTimeoutMS: 45000,
+        connectTimeoutMS: 30000,  // Increased from 3000ms to 30s
+        bufferCommands: true,  // Buffer commands while reconnecting
+        maxIdleTimeMS: 10000,
       });
       mongoConnected = true;
       console.log(`database connected: ${mongoose.connection.host}`);
