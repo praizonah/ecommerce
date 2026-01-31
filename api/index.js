@@ -1,7 +1,6 @@
 import express from "express"
 import dotenv from "dotenv"
 import mongoose from "mongoose"
-import morgan from "morgan"
 import session from "express-session"
 import passport from "passport"
 import path from "path";
@@ -12,12 +11,14 @@ import paymentRouters from "../routers/paymentRouters.js";
 import cashOutRouters from "../routers/cashOutRouters.js";
 import emailSetupRouter from "../routers/emailSetupRouter.js";
 import cors from "cors";
-import { testEmailConfiguration } from "../utils/emailService.js";
 import '../utils/passportConfig.js';
 import serverless from 'serverless-http';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Track cold starts and reuse across invocations
+let isWarmUp = true;
 
 // Load config.env only if it exists (local development)
 // On Vercel, environment variables come from the dashboard
@@ -57,9 +58,6 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-// logging
-app.use(morgan('dev'))
-
 // CORS - Updated for Vercel deployment
 const allowedOrigins = [
   'http://127.0.0.1:5500', 
@@ -83,11 +81,20 @@ app.use('/api/v1/cashout', cashOutRouters)
 app.use('/api/v1/email', emailSetupRouter)
 
 // serve static files from the public directory
-app.use(express.static(path.join(__dirname, '../public')))
+// Optimize for serverless: cache static assets aggressively
+app.use(express.static(path.join(__dirname, '../public'), {
+  maxAge: '1h',
+  etag: false
+}))
 
-// Health check endpoint
+// Health check endpoint - lightweight for keeping warm
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.status(200).json({ 
+    status: 'ok', 
+    database: dbStatus,
+    timestamp: new Date().toISOString() 
+  });
 });
 
 // Catch-all route - serve index.html for client-side routing
@@ -102,12 +109,24 @@ app.get(/^\/(?!api\/).*$/, (req, res) => {
 
 //Connecting to the database (only if MONGO_URL is set)
 const MONGO_URL = process.env.MONGO_URL
-if (MONGO_URL) {
-  mongoose.connect(MONGO_URL).then((conn)=>{
+let mongoConnected = false;
+
+// Only connect once, reuse connection for subsequent invocations
+if (MONGO_URL && !mongoConnected) {
+  mongoose.connect(MONGO_URL, {
+    // Serverless connection pooling
+    maxPoolSize: 5,
+    minPoolSize: 1,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
+  }).then((conn)=>{
+      mongoConnected = true;
       console.log(`database connected successfully : ${conn.connection.host}`);
   }).catch((err)=>{
       console.log(`could not connect to database: ${err}`);
   })    
+} else if (MONGO_URL) {
+  console.log('MONGO_URL is set - using existing connection');
 } else {
   console.log('MONGO_URL not set - skipping database connection');
 }
