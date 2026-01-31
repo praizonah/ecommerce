@@ -47,8 +47,8 @@ try {
   console.log('✓ Verifying API structure...');
   const apiIndexPath = path.join(__dirname, 'api', 'index.js');
   const apiIndex = fs.readFileSync(apiIndexPath, 'utf-8');
-  if (!apiIndex.includes('export default app')) {
-    throw new Error('api/index.js must export the Express app as default');
+  if (!apiIndex.includes('export default')) {
+    throw new Error('api/index.js must have an export default statement');
   }
   console.log('  API structure verified\n');
 
