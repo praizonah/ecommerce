@@ -92,7 +92,7 @@ app.get('/health', (req, res) => {
 
 // Catch-all route - serve index.html for client-side routing
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 // Fallback for all other routes - serve index.html for SPA
 app.use((req, res, next) => {
