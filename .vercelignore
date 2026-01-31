@@ -9,5 +9,12 @@ config.env
 README.md
 DEPLOYMENT.md
 RENDER_DEPLOYMENT.md
+VERCEL_READY.md
+VERCEL_TESTING.md
+VERCEL_TIMEOUT_FIX.md
 Procfile
 render.yaml
+LOGIN_PAGE_INTEGRATION.html
+.gitignore
+deploy.js
+seedProducts.js

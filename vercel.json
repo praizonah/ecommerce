@@ -1,18 +1,74 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": ".",
+  "env": {
+    "NODE_ENV": "production"
+  },
   "functions": {
     "api/index.js": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "memory": 1024
     }
   },
   "routes": [
     {
       "src": "/api/(.*)",
+      "dest": "/api/index.js",
+      "cache": {
+        "maxAge": 60
+      }
+    },
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1",
+      "cache": {
+        "maxAge": 86400
+      }
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$)",
+      "dest": "/public/$1",
+      "cache": {
+        "maxAge": 31536000
+      }
+    },
+    {
+      "src": "/health",
       "dest": "/api/index.js"
     },
     {
       "src": "/(.*)",
       "dest": "/api/index.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=60"
+        }
+      ]
+    },
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(js|css)$)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000"
+        }
+      ]
     }
   ]
 }
