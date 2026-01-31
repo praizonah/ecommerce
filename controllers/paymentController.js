@@ -4,8 +4,19 @@ import { product } from '../schemas/productSchema.js';
 
 dotenv.config({ path: './config.env' });
 
-// Initialize Stripe
-const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
+// Initialize Stripe lazily - only when needed
+let stripeClient = null;
+
+const getStripeClient = () => {
+  if (!stripeClient) {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+    }
+    stripeClient = stripe(apiKey);
+  }
+  return stripeClient;
+};
 
 // Stripe Payment Intent - Create checkout session
 export const createPaymentIntent = async (req, res) => {
@@ -69,7 +80,7 @@ export const createPaymentIntent = async (req, res) => {
     }
 
     // Create Stripe checkout session
-    const session = await stripeClient.checkout.sessions.create({
+    const session = await getStripeClient().checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
@@ -141,7 +152,7 @@ export const createAchCheckoutSession = async (req, res) => {
     }
 
     // Create Stripe checkout session with ACH payment method
-    const session = await stripeClient.checkout.sessions.create({
+    const session = await getStripeClient().checkout.sessions.create({
       payment_method_types: ['us_bank_account'],
       line_items: lineItems,
       mode: 'payment',
@@ -182,14 +193,14 @@ export const createAchPaymentIntent = async (req, res) => {
     }
 
     // Create a customer (optional but recommended)
-    const customer = await stripeClient.customers.create({
+    const customer = await getStripeClient().customers.create({
       email: email,
       name: name,
       description: 'Customer for ACH payments'
     });
 
     // Create payment method for ACH
-    const paymentMethod = await stripeClient.paymentMethods.create({
+    const paymentMethod = await getStripeClient().paymentMethods.create({
       type: 'us_bank_account',
       us_bank_account: {
         account_number: bankDetails.accountNumber,
@@ -203,7 +214,7 @@ export const createAchPaymentIntent = async (req, res) => {
     });
 
     // Create payment intent with ACH
-    const paymentIntent = await stripeClient.paymentIntents.create({
+    const paymentIntent = await getStripeClient().paymentIntents.create({
       amount: Math.round(amount * 100),
       currency: 'usd',
       customer: customer.id,
@@ -242,7 +253,7 @@ export const createPaymentIntentCustom = async (req, res) => {
     }
 
     // Create payment intent
-    const paymentIntent = await stripeClient.paymentIntents.create({
+    const paymentIntent = await getStripeClient().paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents
       currency: currency,
       receipt_email: email,
@@ -275,7 +286,7 @@ export const verifyPayment = async (req, res) => {
     }
 
     // Retrieve session from Stripe
-    const session = await stripeClient.checkout.sessions.retrieve(sessionId);
+    const session = await getStripeClient().checkout.sessions.retrieve(sessionId);
 
     if (!session) {
       return res.status(404).json({ message: 'Session not found' });
@@ -315,7 +326,7 @@ export const getPaymentStatus = async (req, res) => {
       return res.status(400).json({ message: 'Intent ID is required' });
     }
 
-    const paymentIntent = await stripeClient.paymentIntents.retrieve(intentId);
+    const paymentIntent = await getStripeClient().paymentIntents.retrieve(intentId);
 
     return res.status(200).json({
       message: 'Payment status retrieved successfully',
@@ -369,7 +380,7 @@ export const handleStripeWebhook = async (req, res) => {
     let event;
 
     try {
-      event = stripeClient.webhooks.constructEvent(
+      event = getStripeClient().webhooks.constructEvent(
         req.body,
         sig,
         webhookSecret
@@ -428,7 +439,7 @@ export const transferPaymentToBank = async (req, res) => {
     
     // For now, we'll create a payout to a bank account
     try {
-      const payout = await stripeClient.payouts.create({
+      const payout = await getStripeClient().payouts.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency: 'usd',
         method: 'instant',
