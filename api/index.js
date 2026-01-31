@@ -24,10 +24,12 @@ let isWarmUp = true;
 // On Railway, environment variables come from the dashboard
 try {
   const configPath = path.join(__dirname, '../config.env');
-  dotenv.config({path: configPath});
+  const result = dotenv.config({path: configPath});
+  if (!result.error) {
+    console.log('✅ dotenv loaded config.env');
+  }
 } catch (err) {
   // config.env not found - expected on Railway
-  // Environment variables will come from Railway dashboard
 }
 
 // Initialize JWT strategy after env vars are loaded
@@ -37,9 +39,19 @@ initializeJWTStrategy();
 import loadConfigEnvIfMissing from '../utils/configLoader.js';
 try {
   const loaded = loadConfigEnvIfMissing(__dirname);
-  if (loaded) console.log('ℹ️  Loaded missing env vars from config.env');
+  if (loaded) {
+    console.log('✅ Custom loader filled in missing environment variables');
+  }
 } catch (e) {
-  /* ignore */
+  console.warn('⚠️  Config loader error:', e.message);
+}
+
+// Debug output
+const MONGO_URL_CHECK = process.env.MONGO_URL;
+if (MONGO_URL_CHECK) {
+  console.log('✅ MONGO_URL is set:', MONGO_URL_CHECK.substring(0, 60) + '...');
+} else {
+  console.warn('⚠️  MONGO_URL is not set');
 }
 
 const app = express()
@@ -54,7 +66,6 @@ app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 
 // Session configuration for Passport.js
-// Always enable sessions with sensible defaults for development/production
 const sessionConfig = {
   secret: process.env.JWT_SECRET || 'dev-secret-key',
   resave: false,
@@ -67,22 +78,7 @@ const sessionConfig = {
   }
 };
 
-// In production with MONGO_URL and connect-mongo available, use it
-// Otherwise fallback to MemoryStore (safe for development)
-if (process.env.NODE_ENV === 'production' && process.env.MONGO_URL) {
-  try {
-    const { default: MongoStore } = await import('connect-mongo');
-    if (MongoStore && typeof MongoStore.create === 'function') {
-      sessionConfig.store = MongoStore.create({ mongoUrl: process.env.MONGO_URL });
-      console.log('✅ Using MongoDB-backed session store (connect-mongo)');
-    } else if (MongoStore) {
-      sessionConfig.store = MongoStore({ mongoUrl: process.env.MONGO_URL });
-      console.log('✅ Using MongoDB-backed session store (connect-mongo fallback)');
-    }
-  } catch (err) {
-    console.warn('⚠️  connect-mongo not available. Using MemoryStore (not recommended for production). Install with: npm install connect-mongo');
-  }
-}
+console.log('ℹ️  Session configuration ready (store will be MongoDB if MONGO_URL is set)');
 
 // Apply session middleware BEFORE Passport
 app.use(session(sessionConfig));

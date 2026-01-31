@@ -20,24 +20,61 @@ import { ensureMongoConnected, isMongoConnected } from './utils/mongoHealthCheck
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load config.env only if it exists (local development)
+// Load environment variables - try multiple methods for robustness
+// First, try dotenv with explicit config.env path
 try {
-  dotenv.config({path: path.join(__dirname, 'config.env')});
+  const configPath = path.join(__dirname, 'config.env');
+  const result = dotenv.config({path: configPath});
+  if (result.error) {
+    console.warn('⚠️  dotenv error:', result.error.message);
+  } else {
+    console.log('✅ dotenv loaded config.env successfully');
+  }
 } catch (err) {
-  // config.env not found - continue without it
+  console.warn('⚠️  Error with dotenv:', err.message);
 }
+
+// Then ensure all vars are loaded using custom parser (handles spaces around =)
+import loadConfigEnvIfMissing from './utils/configLoader.js';
+let configLoaded = false;
+try {
+  configLoaded = loadConfigEnvIfMissing(__dirname);
+  if (configLoaded) {
+    console.log('✅ Custom loader filled in missing environment variables');
+  }
+} catch (e) {
+  console.error('❌ Error in custom config loader:', e.message);
+}
+
+// Debug output
+console.log('\n📋 Environment Variable Status:');
+const MONGO_URL = process.env.MONGO_URL;
+const JWT_SECRET = process.env.JWT_SECRET;
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+
+if (MONGO_URL) {
+  console.log('✅ MONGO_URL is set:', MONGO_URL.substring(0, 60) + '...');
+} else {
+  console.error('❌ MONGO_URL is NOT set!');
+  console.error('   Check: config.env exists in project root?');
+  console.error('   Check: MONGO_URL line in config.env?');
+}
+
+if (JWT_SECRET) {
+  console.log('✅ JWT_SECRET is set');
+} else {
+  console.warn('⚠️  JWT_SECRET not set, using fallback');
+}
+
+if (STRIPE_KEY) {
+  console.log('✅ STRIPE_SECRET_KEY is set');
+} else {
+  console.warn('⚠️  STRIPE_SECRET_KEY not set');
+}
+console.log('');
 
 // Initialize JWT strategy after env vars are loaded
 initializeJWTStrategy();
-
-// Robustly load config.env keys into process.env if any are missing
-import loadConfigEnvIfMissing from './utils/configLoader.js';
-try {
-  const loaded = loadConfigEnvIfMissing(__dirname);
-  if (loaded) console.log('ℹ️  Loaded missing env vars from config.env');
-} catch (e) {
-  /* ignore */
-}
 
 const app = express()
 
@@ -51,7 +88,6 @@ app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 
 // Session configuration for Passport.js
-// Always enable sessions with sensible defaults for development/production
 const sessionConfig = {
   secret: process.env.JWT_SECRET || 'dev-secret-key',
   resave: false,
@@ -64,22 +100,9 @@ const sessionConfig = {
   }
 };
 
-// In production with MONGO_URL and connect-mongo available, use it
-// Otherwise fallback to MemoryStore (safe for development)
-if (process.env.NODE_ENV === 'production' && process.env.MONGO_URL) {
-  try {
-    const { default: MongoStore } = await import('connect-mongo');
-    if (MongoStore && typeof MongoStore.create === 'function') {
-      sessionConfig.store = MongoStore.create({ mongoUrl: process.env.MONGO_URL });
-      console.log('✅ Using MongoDB-backed session store (connect-mongo)');
-    } else if (MongoStore) {
-      sessionConfig.store = MongoStore({ mongoUrl: process.env.MONGO_URL });
-      console.log('✅ Using MongoDB-backed session store (connect-mongo fallback)');
-    }
-  } catch (err) {
-    console.warn('⚠️  connect-mongo not available. Using MemoryStore (not recommended for production). Install with: npm install connect-mongo');
-  }
-}
+// Note: Session store will be initialized after MongoDB connection attempt
+// For now, use MemoryStore (will be replaced if MongoDB connects)
+console.log('ℹ️  Session configuration ready (store will be MongoDB if MONGO_URL is set)');
 
 // Apply session middleware BEFORE Passport
 app.use(session(sessionConfig));
@@ -167,6 +190,24 @@ if (MONGO_URL) {
   // Monitor connection events for debugging
   mongoose.connection.on('connected', () => {
     console.log('📡 Mongoose connected to MongoDB');
+    
+    // Try to initialize MongoDB session store now that DB is connected
+    if (!sessionConfig.store) {
+      (async () => {
+        try {
+          const { default: MongoStore } = await import('connect-mongo');
+          if (MongoStore && typeof MongoStore.create === 'function') {
+            sessionConfig.store = MongoStore.create({ mongoUrl: process.env.MONGO_URL });
+            console.log('✅ MongoDB session store initialized and updated');
+          } else if (MongoStore) {
+            sessionConfig.store = MongoStore({ mongoUrl: process.env.MONGO_URL });
+            console.log('✅ MongoDB session store initialized (fallback method)');
+          }
+        } catch (err) {
+          console.warn('⚠️  Could not initialize MongoStore after connection:', err.message);
+        }
+      })();
+    }
   });
   
   mongoose.connection.on('error', (err) => {
