@@ -1,52 +1,109 @@
 # Railway Environment Variables Setup
 
-This document covers all required environment variables for Railway deployment.
+## ⚠️ IMPORTANT: Environment Variables Required for Railway Deployment
 
-## Required Environment Variables
+Your application has been updated to support Railway deployment. **Config.env files are NOT deployed to production** for security reasons. All sensitive information must be set via the Railway Dashboard.
 
-All these variables must be set in the Railway dashboard under **Variables**.
+## Complete List of Required Variables
 
-### Database
-- `MONGO_URL` - MongoDB connection string
-  - Format: `mongodb+srv://username:password@cluster.mongodb.net/dbname`
-  - Get from: MongoDB Atlas dashboard
+Copy and paste these KEY=VALUE pairs into your Railway Dashboard > Variables:
 
-### Authentication
-- `JWT_SECRET` - Secret key for JWT tokens
-  - Generate: `openssl rand -base64 32`
-  - Keep it secure and unique
+```
+PORT=8080
+NODE_ENV=production
+MONGO_URL=mongodb+srv://onahpraiz_db_user:PASSWORD@productscollection.eiiuf1r.mongodb.net/?appName=productsCollection
+JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRES_IN=7d
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_email_password_or_app_key
+FRONTEND_URL=https://your-railway-frontend-url.up.railway.app
+STRIPE_PUBLIC_KEY=pk_test_your_stripe_public_key
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+RESEND_API_KEY=re_your_resend_api_key
+EMAILJS_SERVICE_ID=service_your_emailjs_service_id
+EMAILJS_TEMPLATE_ID=template_your_emailjs_template_id
+EMAILJS_PUBLIC_KEY=your_emailjs_public_key
+EMAILJS_PRIVATE_KEY=your_emailjs_private_key
+PASSWS=your_database_password
+```
 
-### Stripe Integration
-- `STRIPE_SECRET_KEY` - Stripe secret API key
-  - ⚠️ CRITICAL: Must be set before app starts
-  - Get from: Stripe Dashboard → API Keys
-  - Format: `sk_live_...` or `sk_test_...`
+## How to Add Variables to Railway Dashboard
 
-- `STRIPE_PUBLIC_KEY` - Stripe publishable key
-  - Get from: Stripe Dashboard → API Keys
-  - Format: `pk_live_...` or `pk_test_...`
+1. **Open your Railway project**
+   - Go to https://railway.app/project/YOUR_PROJECT_ID
+   - Click on your backend service
 
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret
-  - Get from: Stripe Dashboard → Webhooks
-  - Format: `whsec_...`
+2. **Navigate to Variables**
+   - Click the "Variables" tab
+   - OR look for "Environment Variables" section
 
-### Email Configuration
-- `EMAIL_USER` - Email service username or sender email
-  - Use your email provider credentials (Gmail, SendGrid, etc.)
+3. **Add Each Variable**
+   - Click "Add variable" or paste the complete list above
+   - Format: KEY=VALUE (one per line if pasting)
 
-- `EMAIL_PASS` - Email service password or API key
-  - Use app-specific password (for Gmail) or API key (for SendGrid)
+4. **Deploy**
+   - Save/commit your variables
+   - Railway will automatically redeploy your application
+   - Check the deployment logs to confirm it started successfully
 
-### Application Configuration
-- `FRONTEND_URL` - Frontend application URL
-  - Format: `https://your-frontend-domain.com`
-  - Used for CORS and redirects
+## Variable Descriptions
 
-- `NODE_ENV` - Environment mode
-  - Set to: `production`
-  - Critical for proper error handling and security
+| Variable | Purpose | Required |
+|----------|---------|----------|
+| PORT | Server port (must be 8080 for production) | ✅ Yes |
+| NODE_ENV | Set to "production" for Railway | ✅ Yes |
+| MONGO_URL | MongoDB Atlas connection string | ✅ Yes |
+| JWT_SECRET | Secret for JWT tokens and sessions | ✅ Yes |
+| JWT_EXPIRES_IN | Token expiration time (e.g., "7d") | ✅ Yes |
+| EMAIL_USER | Email sender address | ✅ Yes |
+| EMAIL_PASSWORD | Email account password/API key | ✅ Yes |
+| FRONTEND_URL | Your frontend application URL on Railway | ✅ Yes |
+| STRIPE_PUBLIC_KEY | Stripe publishable key | ✅ Yes |
+| STRIPE_SECRET_KEY | Stripe secret key | ✅ Yes |
+| STRIPE_WEBHOOK_SECRET | Stripe webhook signing secret | ✅ Yes |
+| RESEND_API_KEY | Resend email API key (optional backup) | ⚠️ Recommended |
+| EMAILJS_* | EmailJS service credentials (optional backup) | ⚠️ Optional |
+| PASSWS | Database password | ⚠️ Optional |
 
-## Railway Environment Setup Steps
+## What Changed in the Application
+
+✅ **Fixed:**
+- Application no longer requires config.env on Railway
+- Gracefully handles missing config.env file
+- Proper error messages if environment variables are missing
+- 120-second MongoDB buffer timeout for reliable connections
+- MongoDB session store instead of MemoryStore (no memory leaks)
+- Port 8080 for production deployments
+
+✅ **Verified:**
+- Environment variables load from Railway Dashboard
+- All dependencies installed and working
+- Build validation passes successfully
+- Database connection timeout configured properly
+
+## Troubleshooting on Railway
+
+**Problem:** "MONGO_URL not set - database functionality disabled"
+- **Solution:** Add MONGO_URL to Railway Variables and redeploy
+
+**Problem:** "MemoryStore warning in production"
+- **Solution:** Ensure MONGO_URL and NODE_ENV=production are both set
+
+**Problem:** "Session lost after restart"
+- **Solution:** MONGO_URL must be set for persistent sessions
+
+**Problem:** "Port already in use"
+- **Solution:** Railway assigns port automatically; don't force port 4000 in production
+
+## Next Steps
+
+1. ✅ Push code to GitHub (already done)
+2. ⏳ Set environment variables in Railway Dashboard
+3. ⏳ Redeploy the application
+4. ⏳ Test login/registration with MongoDB
+5. ⏳ Verify email notifications are working
+6. ⏳ Test Stripe payments with test keys
 
 ### 1. Log in to Railway
 Go to https://railway.app/dashboard
