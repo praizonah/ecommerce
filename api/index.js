@@ -5,6 +5,7 @@ import session from "express-session"
 import passport from "passport"
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 import productRouters from "../routers/productRouters.js";
 import userRouters from "../routers/userRouters.js";
 import paymentRouters from "../routers/paymentRouters.js";
@@ -24,12 +25,18 @@ let isWarmUp = true;
 // On Railway, environment variables come from the dashboard
 try {
   const configPath = path.join(__dirname, '../config.env');
-  const result = dotenv.config({path: configPath});
-  if (!result.error) {
-    console.log('✅ dotenv loaded config.env');
+  if (fs.existsSync(configPath)) {
+    const result = dotenv.config({path: configPath});
+    if (!result.error) {
+      console.log('✅ dotenv loaded config.env');
+    } else {
+      console.warn('⚠️  dotenv error:', result.error.message);
+    }
+  } else {
+    console.log('ℹ️  config.env not found (expected on Railway - use dashboard variables)');
   }
 } catch (err) {
-  // config.env not found - expected on Railway
+  console.warn('⚠️  Error checking for config.env:', err.message);
 }
 
 // Initialize JWT strategy after env vars are loaded

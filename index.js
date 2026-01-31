@@ -21,17 +21,23 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables - try multiple methods for robustness
-// First, try dotenv with explicit config.env path
+// First, try dotenv with explicit config.env path (only for local development)
+import fs from 'fs';
 try {
   const configPath = path.join(__dirname, 'config.env');
-  const result = dotenv.config({path: configPath});
-  if (result.error) {
-    console.warn('⚠️  dotenv error:', result.error.message);
+  // Only try to load if file exists (won't exist on Railway)
+  if (fs.existsSync(configPath)) {
+    const result = dotenv.config({path: configPath});
+    if (result.error) {
+      console.warn('⚠️  dotenv error:', result.error.message);
+    } else {
+      console.log('✅ dotenv loaded config.env successfully');
+    }
   } else {
-    console.log('✅ dotenv loaded config.env successfully');
+    console.log('ℹ️  config.env not found (expected on Railway - use dashboard variables)');
   }
 } catch (err) {
-  console.warn('⚠️  Error with dotenv:', err.message);
+  console.warn('⚠️  Error checking for config.env:', err.message);
 }
 
 // Then ensure all vars are loaded using custom parser (handles spaces around =)
