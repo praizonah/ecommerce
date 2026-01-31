@@ -41,17 +41,53 @@ app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 
 // Session configuration for Passport.js
-app.use(session({
-  secret: process.env.JWT_SECRET || 'dev-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    secure: process.env.NODE_ENV === 'production', // true in production with HTTPS
-    httpOnly: true,
-    sameSite: 'lax', // Allow cross-site cookies for development
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+// Sessions are optional for this app (JWT-based auth is primary).
+// In production we avoid using MemoryStore. Enable sessions explicitly
+// by setting ENABLE_SESSIONS=true and installing `connect-mongo` if
+// you want persistent sessions backed by MongoDB.
+const enableSessions = process.env.ENABLE_SESSIONS === 'true' || process.env.NODE_ENV !== 'production';
+
+if (enableSessions) {
+  const sessionConfig = {
+    secret: process.env.JWT_SECRET || 'dev-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000
+    }
+  };
+
+  if (process.env.NODE_ENV === 'production' && process.env.MONGO_URL) {
+    // Try to dynamically add a Mongo-backed session store if available
+    (async () => {
+      try {
+        const { default: MongoStore } = await import('connect-mongo');
+        // connect-mongo v4 exposes create method via MongoStore.create
+        if (MongoStore && typeof MongoStore.create === 'function') {
+          sessionConfig.store = MongoStore.create({ mongoUrl: process.env.MONGO_URL });
+          console.log('ℹ️  Using MongoDB-backed session store (connect-mongo)');
+        } else if (MongoStore) {
+          // fallback for other exports
+          sessionConfig.store = MongoStore({ mongoUrl: process.env.MONGO_URL });
+          console.log('ℹ️  Using MongoDB-backed session store (connect-mongo fallback)');
+        }
+      } catch (err) {
+        console.warn('⚠️  connect-mongo not installed or failed to load. Sessions will use MemoryStore. Install connect-mongo for production: `npm install connect-mongo`');
+      } finally {
+        app.use(session(sessionConfig));
+      }
+    })();
+  } else {
+    // Development or sessions explicitly enabled without Mongo
+    app.use(session(sessionConfig));
   }
-}))
+
+} else {
+  console.log('ℹ️  Sessions disabled (ENABLE_SESSIONS not set). Using JWT-only authentication is recommended in production.');
+}
 
 // Initialize Passport.js
 app.use(passport.initialize())
@@ -120,8 +156,17 @@ if (MONGO_URL) {
   console.warn('MONGO_URL environment variable not set - database functionality disabled');
 }    
 
-//Creating a server
-const PORT= process.env.PORT || 4000
+// Creating a server
+// Determine port with safety for Railway: prefer FORCE_PORT in production if set,
+// otherwise use Railway's provided `PORT` or fallback to 4000 for local dev.
+let PORT;
+if (process.env.NODE_ENV === 'production') {
+  // If you need to force the app to listen on 4000 in production,
+  // set the environment variable `FORCE_PORT=4000` in Railway variables.
+  PORT = process.env.FORCE_PORT ? Number(process.env.FORCE_PORT) : (process.env.PORT || 4000);
+} else {
+  PORT = process.env.PORT || 4000;
+}
 // Centralized error handler to return JSON errors to clients (useful for axios)
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err && err.stack ? err.stack : err);
@@ -151,5 +196,9 @@ app.listen(PORT, async (err)=>{
     }
     console.log(`\n✅ Server is running on port: ${PORT}`);
     console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    if (process.env.NODE_ENV === 'production' && process.env.PORT && process.env.FORCE_PORT) {
+      console.warn('⚠️  Note: Railway provided PORT is', process.env.PORT, 'but FORCE_PORT is set to', process.env.FORCE_PORT);
+      console.warn('If you experience connectivity issues, consider removing FORCE_PORT so the process listens on Railway\'s assigned port.');
+    }
 })
 
