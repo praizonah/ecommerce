@@ -83,7 +83,7 @@ app.use('/api/v1/cashout', cashOutRouters)
 app.use('/api/v1/email', emailSetupRouter)
 
 // serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, '../public')))
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -92,13 +92,11 @@ app.get('/health', (req, res) => {
 
 // Catch-all route - serve index.html for client-side routing
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public/index.html'));
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
+
 // Fallback for all other routes - serve index.html for SPA
-app.use((req, res, next) => {
-  // Only handle GET requests that are not API calls
-  if (req.method !== 'GET') return next();
-  if (req.path.startsWith('/api/')) return next();
+app.get(/^\/(?!api\/).*$/, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
