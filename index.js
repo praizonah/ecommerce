@@ -29,6 +29,15 @@ try {
 // Initialize JWT strategy after env vars are loaded
 initializeJWTStrategy();
 
+// Robustly load config.env keys into process.env if any are missing
+import loadConfigEnvIfMissing from './utils/configLoader.js';
+try {
+  const loaded = loadConfigEnvIfMissing(__dirname);
+  if (loaded) console.log('ℹ️  Loaded missing env vars from config.env');
+} catch (e) {
+  /* ignore */
+}
+
 const app = express()
 
 // Stripe webhook - must be before body parsing
