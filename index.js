@@ -13,7 +13,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { testEmailConfiguration } from "./utils/emailService.js";
-import './utils/passportConfig.js';
+import passportConfig, { initializeJWTStrategy } from './utils/passportConfig.js';
 
 // ESM compatibility
 const __filename = fileURLToPath(import.meta.url);
@@ -25,6 +25,9 @@ try {
 } catch (err) {
   // config.env not found - continue without it
 }
+
+// Initialize JWT strategy after env vars are loaded
+initializeJWTStrategy();
 
 const app = express()
 

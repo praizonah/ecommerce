@@ -11,7 +11,7 @@ import paymentRouters from "../routers/paymentRouters.js";
 import cashOutRouters from "../routers/cashOutRouters.js";
 import emailSetupRouter from "../routers/emailSetupRouter.js";
 import cors from "cors";
-import '../utils/passportConfig.js';
+import passportConfig, { initializeJWTStrategy } from '../utils/passportConfig.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +28,9 @@ try {
   // config.env not found - expected on Railway
   // Environment variables will come from Railway dashboard
 }
+
+// Initialize JWT strategy after env vars are loaded
+initializeJWTStrategy();
 
 const app = express()
 

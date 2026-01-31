@@ -37,30 +37,46 @@ passport.use('local', new LocalStrategy.Strategy(
   }
 ));
 
-// JWT Strategy for token-based authentication
-passport.use('jwt', new JWTStrategy.Strategy(
-  {
-    jwtFromRequest: JWTExtract.fromAuthHeaderAsBearerToken(),
-    secretOrKey: process.env.JWT_SECRET
-  },
-  async (payload, done) => {
-    try {
-      const user = await User.findById(payload.id);
+// JWT Strategy for token-based authentication - Initialize lazily
+let jwtStrategyInitialized = false;
 
-      if (!user) {
-        return done(null, false, { message: 'User not found' });
-      }
-
-      if (!user.isEmailConfirmed) {
-        return done(null, false, { message: 'Email not confirmed' });
-      }
-
-      return done(null, user);
-    } catch (err) {
-      return done(err);
-    }
+const initializeJWTStrategy = () => {
+  if (jwtStrategyInitialized) {
+    return;
   }
-));
+
+  const jwtSecret = process.env.JWT_SECRET || 'dev-secret-key';
+  
+  if (!jwtSecret) {
+    console.warn('⚠️  JWT_SECRET not set - using default. Set JWT_SECRET in production!');
+  }
+
+  passport.use('jwt', new JWTStrategy.Strategy(
+    {
+      jwtFromRequest: JWTExtract.fromAuthHeaderAsBearerToken(),
+      secretOrKey: jwtSecret
+    },
+    async (payload, done) => {
+      try {
+        const user = await User.findById(payload.id);
+
+        if (!user) {
+          return done(null, false, { message: 'User not found' });
+        }
+
+        if (!user.isEmailConfirmed) {
+          return done(null, false, { message: 'Email not confirmed' });
+        }
+
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  ));
+
+  jwtStrategyInitialized = true;
+};
 
 // Serialize user for sessions (if using sessions)
 passport.serializeUser((user, done) => {
@@ -77,4 +93,5 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+export { initializeJWTStrategy };
 export default passport;
