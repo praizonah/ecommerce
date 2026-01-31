@@ -63,7 +63,7 @@ export const createStripeConnectAccount = async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating Stripe Connect account:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -96,7 +96,7 @@ export const getConnectAccountLink = async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating account link:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -130,7 +130,7 @@ export const getConnectAccountDetails = async (req, res) => {
     });
   } catch (err) {
     console.error('Error retrieving account details:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -160,7 +160,7 @@ export const addFundsToWallet = async (req, res) => {
     });
   } catch (err) {
     console.error('Error adding funds to wallet:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -181,7 +181,7 @@ export const getWalletBalance = async (req, res) => {
     });
   } catch (err) {
     console.error('Error retrieving wallet balance:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -273,7 +273,7 @@ export const requestCashOut = async (req, res) => {
     }
   } catch (err) {
     console.error('Error processing cash out:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -296,7 +296,7 @@ export const getCashOutHistory = async (req, res) => {
     });
   } catch (err) {
     console.error('Error retrieving cash out history:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -337,7 +337,7 @@ export const getAllCashOutRequests = async (req, res) => {
     });
   } catch (err) {
     console.error('Error retrieving cash out requests:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 

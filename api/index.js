@@ -42,12 +42,13 @@ app.use(express.json())
 
 // Session configuration for Passport.js
 app.use(session({
-  secret: process.env.JWT_SECRET,
+  secret: process.env.JWT_SECRET || 'dev-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: true, // Set to true in production with HTTPS
+    secure: process.env.NODE_ENV === 'production', // Only true in production with HTTPS
     httpOnly: true,
+    sameSite: 'lax', // Allow cross-site cookies for development
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }))
@@ -63,11 +64,16 @@ app.use(morgan('dev'))
 const allowedOrigins = [
   'http://127.0.0.1:5500', 
   'http://localhost:5500',
+  'http://localhost:4000',
+  'http://127.0.0.1:4000',
   process.env.FRONTEND_URL,
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
 ].filter(Boolean);
 
-app.use(cors({ origin: allowedOrigins }))
+app.use(cors({ 
+  origin: allowedOrigins,
+  credentials: true
+}))
 
 // mount API routers
 app.use('/api/v1/products', productRouters)
@@ -77,7 +83,7 @@ app.use('/api/v1/cashout', cashOutRouters)
 app.use('/api/v1/email', emailSetupRouter)
 
 // serve static files from the public directory
-app.use(express.static(path.join(__dirname, '../public')))
+app.use(express.static(path.join(__dirname, 'public')))
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -107,5 +113,27 @@ if (MONGO_URL) {
 } else {
   console.log('MONGO_URL not set - skipping database connection');
 }
+
+// Centralized error handler to return JSON errors to clients (useful for axios)
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err && err.stack ? err.stack : err);
+  const status = err && err.status ? err.status : 500;
+  const payload = {
+    success: false,
+    message: err && (err.message || err.error) ? (err.message || err.error) : 'Internal Server Error'
+  };
+  if (process.env.NODE_ENV !== 'production') {
+    payload.stack = err && err.stack ? err.stack : null;
+  }
+  try {
+    if (!res.headersSent) {
+      res.status(status).json(payload);
+    } else {
+      res.end();
+    }
+  } catch (e) {
+    console.error('Error sending error response:', e);
+  }
+});
 
 export default serverless(app);

@@ -5,7 +5,8 @@
   "main": "api/index.js",
   "type": "module",
   "scripts": {
-    "start": "node api/index.js",
+    "start": "node index.js",
+    "start:serverless": "node api/index.js",
     "dev": "nodemon index.js",
     "build": "node build.js"
   },

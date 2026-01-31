@@ -90,7 +90,7 @@ export const createPaymentIntent = async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating payment intent:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -164,7 +164,7 @@ export const createAchCheckoutSession = async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating ACH checkout session:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -230,7 +230,7 @@ export const createAchPaymentIntent = async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating ACH payment intent:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 export const createPaymentIntentCustom = async (req, res) => {
@@ -261,7 +261,7 @@ export const createPaymentIntentCustom = async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating payment intent:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -302,7 +302,7 @@ export const verifyPayment = async (req, res) => {
     }
   } catch (err) {
     console.error('Error verifying payment:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -327,7 +327,7 @@ export const getPaymentStatus = async (req, res) => {
     });
   } catch (err) {
     console.error('Error retrieving payment status:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -356,7 +356,7 @@ export const getSessionDetails = async (req, res) => {
     });
   } catch (err) {
     console.error('Error retrieving session details:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -403,7 +403,7 @@ export const handleStripeWebhook = async (req, res) => {
     return res.status(200).json({ received: true });
   } catch (err) {
     console.error('Webhook error:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 

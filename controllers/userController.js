@@ -13,7 +13,7 @@ export const getUsers = async (req, res) => {
     const findUser = await User.find({});
     return res.status(200).json(findUser);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -27,7 +27,7 @@ export const getUserById = async (req, res) => {
 
     return res.status(200).json(findUser);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -45,7 +45,7 @@ export const updateUser = async (req, res) => {
 
     return res.status(200).json(updatedUser);
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -69,7 +69,7 @@ export const deleteUser = async (req, res) => {
       tokensClearedResult: tokenClearResult
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -132,7 +132,7 @@ export const registerUser = async (req, res) => {
     });
   } catch (err) {
     console.error("Registration error:", err);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -162,7 +162,7 @@ export const loginUser = async (req, res, next) => {
       }
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -292,7 +292,7 @@ export const forgotPassword = async (req, res) => {
       message: "Password reset email sent successfully",
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -337,7 +337,7 @@ export const resetPassword = async (req, res) => {
       message: "Password reset successfully",
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -368,7 +368,7 @@ export const verifyResetToken = async (req, res, next) => {
     req.resetToken = token;
     next();
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 

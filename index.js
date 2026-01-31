@@ -39,12 +39,13 @@ app.use(express.json())
 
 // Session configuration for Passport.js
 app.use(session({
-  secret: process.env.JWT_SECRET,
+  secret: process.env.JWT_SECRET || 'dev-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: { 
     secure: process.env.NODE_ENV === 'production', // true in production with HTTPS
     httpOnly: true,
+    sameSite: 'lax', // Allow cross-site cookies for development
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }))
@@ -61,11 +62,15 @@ const allowedOrigins = [
   'http://127.0.0.1:5500', 
   'http://localhost:5500',
   'http://localhost:4000',
+  'http://127.0.0.1:4000',
   process.env.FRONTEND_URL,
   process.env.RENDER_EXTERNAL_URL || 'http://localhost:4000'
 ].filter(Boolean);
 
-app.use(cors({ origin: allowedOrigins }))
+app.use(cors({ 
+  origin: allowedOrigins,
+  credentials: true
+}))
 
 // mount API routers
 app.use('/api/v1/products', productRouters)
@@ -88,7 +93,9 @@ app.get('/', (req, res) => {
 });
 
 // Fallback - serve index.html for any non-API routes (client-side routing)
-app.get('*', (req, res) => {
+app.get(/.*/, (req, res) => {
+  // If this is an API request, pass through (should have been handled earlier)
+  if (req.path.startsWith('/api/')) return res.status(404).end();
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
@@ -102,6 +109,28 @@ mongoose.connect(MONGO_URL).then((conn)=>{
 
 //Creating a server
 const PORT= process.env.PORT || 4000
+// Centralized error handler to return JSON errors to clients (useful for axios)
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err && err.stack ? err.stack : err);
+  const status = err && err.status ? err.status : 500;
+  const payload = {
+    success: false,
+    message: err && (err.message || err.error) ? (err.message || err.error) : 'Internal Server Error'
+  };
+  if (process.env.NODE_ENV !== 'production') {
+    payload.stack = err && err.stack ? err.stack : null;
+  }
+  try {
+    if (!res.headersSent) {
+      res.status(status).json(payload);
+    } else {
+      res.end();
+    }
+  } catch (e) {
+    console.error('Error sending error response:', e);
+  }
+});
+
 app.listen(PORT, async (err)=>{
     err? console.log(err): console.log(`server is running on port: ${PORT}`)
     

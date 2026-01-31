@@ -11,8 +11,15 @@ router.route('/')
 router.route('/register')
 .post(registerUser)
 
-router.route('/login')
-.post(passport.authenticate('local', { session: false }), loginUser)
+router.post('/login', (req, res, next) => {
+  passport.authenticate('local', { session: false }, (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.status(401).json({ success: false, message: info?.message || 'Authentication failed' });
+    // attach user and proceed to controller
+    req.user = user;
+    next();
+  })(req, res, next);
+}, loginUser)
 
 // Email verification routes (BACKEND-ONLY)
 router.route('/verify-email/status')

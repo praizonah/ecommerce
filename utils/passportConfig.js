@@ -21,11 +21,6 @@ passport.use('local', new LocalStrategy.Strategy(
         return done(null, false, { message: 'User not found' });
       }
 
-      // Check if email is confirmed
-      if (!user.isEmailConfirmed) {
-        return done(null, false, { message: 'Please confirm your email first' });
-      }
-
       // Compare passwords
       const isPasswordValid = await bcrypt.compare(password, user.password);
       
@@ -33,6 +28,8 @@ passport.use('local', new LocalStrategy.Strategy(
         return done(null, false, { message: 'Incorrect password' });
       }
 
+      // Allow login regardless of email confirmation status
+      // Users can still login to confirm their email after registration
       return done(null, user);
     } catch (err) {
       return done(err);
