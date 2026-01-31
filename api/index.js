@@ -12,6 +12,7 @@ import cashOutRouters from "../routers/cashOutRouters.js";
 import emailSetupRouter from "../routers/emailSetupRouter.js";
 import cors from "cors";
 import passportConfig, { initializeJWTStrategy } from '../utils/passportConfig.js';
+import { ensureMongoConnected } from '../utils/mongoHealthCheck.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -105,6 +106,9 @@ app.use(cors({
   credentials: true
 }))
 
+// MongoDB health check middleware - ensure database is accessible before processing API requests
+app.use('/api', ensureMongoConnected);
+
 //Connecting to the database (only if MONGO_URL is set)
 const MONGO_URL = process.env.MONGO_URL
 let mongoConnected = false;
@@ -128,14 +132,17 @@ const connectToDatabase = async () => {
   mongoConnectionPromise = (async () => {
     try {
       await mongoose.connect(MONGO_URL, {
-        maxPoolSize: 5,
-        minPoolSize: 1,
-        serverSelectionTimeoutMS: 30000,
-        socketTimeoutMS: 45000,
-        connectTimeoutMS: 30000,
+        maxPoolSize: 10,
+        minPoolSize: 2,
+        serverSelectionTimeoutMS: 60000,
+        socketTimeoutMS: 60000,
+        connectTimeoutMS: 60000,
         bufferCommands: true,
-        bufferTimeoutMS: 30000,  // ⚠️ CRITICAL: Increase from default 10s to 30s
-        maxIdleTimeMS: 10000,
+        bufferTimeoutMS: 120000,  // ⚠️ CRITICAL: 120 seconds for buffering operations
+        maxIdleTimeMS: 30000,
+        heartbeatFrequencyMS: 10000,
+        retryWrites: true,
+        retryReads: true,
       });
       mongoConnected = true;
       console.log(`database connected: ${mongoose.connection.host}`);

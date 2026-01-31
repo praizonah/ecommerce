@@ -14,6 +14,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { testEmailConfiguration } from "./utils/emailService.js";
 import passportConfig, { initializeJWTStrategy } from './utils/passportConfig.js';
+import { ensureMongoConnected, isMongoConnected } from './utils/mongoHealthCheck.js';
 
 // ESM compatibility
 const __filename = fileURLToPath(import.meta.url);
@@ -109,6 +110,9 @@ app.use(cors({
   credentials: true
 }))
 
+// MongoDB health check middleware - ensure database is accessible before processing API requests
+app.use('/api', ensureMongoConnected);
+
 // mount API routers
 app.use('/api/v1/products', productRouters)
 app.use('/api/v1/users', userRouters)
@@ -139,19 +143,42 @@ app.get(/.*/, (req, res) => {
 //Connecting to the database
 const MONGO_URL = process.env.MONGO_URL
 if (MONGO_URL) {
+  console.log('🔄 Initiating MongoDB connection with 120s buffer timeout...');
   mongoose.connect(MONGO_URL, {
-    maxPoolSize: 5,
+    maxPoolSize: 10,
     minPoolSize: 2,
-    serverSelectionTimeoutMS: 30000,
-    socketTimeoutMS: 45000,
-    connectTimeoutMS: 30000,
+    serverSelectionTimeoutMS: 60000,
+    socketTimeoutMS: 60000,
+    connectTimeoutMS: 60000,
     bufferCommands: true,
-    bufferTimeoutMS: 30000,  // ⚠️ CRITICAL: Increase from default 10s to 30s
-    maxIdleTimeMS: 10000,
+    bufferTimeoutMS: 120000,  // ⚠️ CRITICAL: 120 seconds for buffering operations
+    maxIdleTimeMS: 30000,
+    heartbeatFrequencyMS: 10000,
+    retryWrites: true,
+    retryReads: true,
   }).then((conn)=>{
-      console.log(`database connected successfully : ${conn.connection.host}`);
+      console.log(`✅ Database connected successfully : ${conn.connection.host}`);
+      console.log(`📊 Connection pool: max=${conn.connections[0]?.options?.maxPoolSize || 'N/A'}, min=${conn.connections[0]?.options?.minPoolSize || 'N/A'}`);
   }).catch((err)=>{
-      console.error(`could not connect to database: ${err}`);
+      console.error(`❌ Could not connect to database: ${err.message}`);
+      console.error('Error details:', err);
+  });
+  
+  // Monitor connection events for debugging
+  mongoose.connection.on('connected', () => {
+    console.log('📡 Mongoose connected to MongoDB');
+  });
+  
+  mongoose.connection.on('error', (err) => {
+    console.error('❌ Mongoose connection error:', err.message);
+  });
+  
+  mongoose.connection.on('disconnected', () => {
+    console.warn('⚠️  Mongoose disconnected from MongoDB');
+  });
+  
+  mongoose.connection.on('reconnected', () => {
+    console.log('♻️  Mongoose reconnected to MongoDB');
   });
 } else {
   console.warn('MONGO_URL environment variable not set - database functionality disabled');
@@ -170,14 +197,30 @@ if (process.env.NODE_ENV === 'production') {
 // Centralized error handler to return JSON errors to clients (useful for axios)
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err && err.stack ? err.stack : err);
-  const status = err && err.status ? err.status : 500;
+  
+  // Check if this is a mongoose buffering timeout error
+  const isBufferingTimeout = err && err.message && err.message.includes('buffering timed out');
+  
+  let status = err && err.status ? err.status : 500;
+  let message = err && (err.message || err.error) ? (err.message || err.error) : 'Internal Server Error';
+  
+  // Provide helpful message for buffering timeout
+  if (isBufferingTimeout) {
+    console.error('⚠️  Database buffering timeout - MongoDB connection may be slow or unavailable');
+    status = 503;
+    message = 'Database temporarily unavailable - operation timed out. Please retry in a moment.';
+  }
+  
   const payload = {
     success: false,
-    message: err && (err.message || err.error) ? (err.message || err.error) : 'Internal Server Error'
+    message: message
   };
+  
   if (process.env.NODE_ENV !== 'production') {
     payload.stack = err && err.stack ? err.stack : null;
+    payload.errorName = err?.name;
   }
+  
   try {
     if (!res.headersSent) {
       res.status(status).json(payload);
