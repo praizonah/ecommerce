@@ -1,6 +1,11 @@
 const form = document.getElementById("registerForm");
   const message = document.getElementById("message");
 
+  // Dynamically detect API URL
+  const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:4000'
+    : `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
+
   // get input elements so we can read their values
   const name = document.getElementById("name");
   const email = document.getElementById("email");
@@ -36,7 +41,7 @@ const form = document.getElementById("registerForm");
       message.textContent = "📝 Registering... Please wait.";
 
       const res = await axios.post(
-        "http://localhost:4000/api/v1/users/register",
+        `${API_URL}/api/v1/users/register`,
         {
           name: name.value,
           email: email.value,

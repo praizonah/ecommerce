@@ -3,13 +3,18 @@ const cartItems = document.getElementById("cart-items");
 const cartCount = document.getElementById("cart-count");
 const cartTotal = document.getElementById("cart-total");
 
+// Dynamically detect API URL
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:4000'
+  : `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
+
 let products = [];
 let cart = [];
 
 // Fetch products from database
 async function fetchProducts() {
   try {
-    const response = await fetch('http://localhost:4000/api/v1/products/all');
+    const response = await fetch(`${API_URL}/api/v1/products/all`);
     const data = await response.json();
     
     if (response.ok && data.findProduct) {

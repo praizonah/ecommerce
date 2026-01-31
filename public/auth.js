@@ -5,8 +5,14 @@
  * This script replaces separate scripts with a unified approach
  */
 
-// API Base URL - Change for production
-const API_URL = 'http://localhost:4000/api/v1/users';
+// API Base URL - Dynamically detect based on current hostname
+// If on localhost, use localhost:4000
+// If on production (Railway, etc.), use same domain as frontend
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:4000/api/v1/users'
+  : `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}/api/v1/users`;
+
+console.log('Auth API URL:', API_URL);
 
 // Check if axios is loaded
 if (typeof axios === 'undefined') {

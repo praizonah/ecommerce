@@ -1,6 +1,11 @@
 const form = document.getElementById("loginForm");
 const message = document.getElementById("message");
 
+// Dynamically detect API URL
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:4000'
+  : `${window.location.protocol}//${window.location.hostname}${window.location.port ? ':' + window.location.port : ''}`;
+
 // get input elements so we can read their values
 const email = document.getElementById("email");
 const password = document.getElementById("password");
@@ -10,7 +15,7 @@ form.addEventListener("submit", async (e) => {
 
   try {
     const res = await axios.post(
-      "http://localhost:4000/api/v1/users/login",
+      `${API_URL}/api/v1/users/login`,
       {
         email: email.value,
         password: password.value
