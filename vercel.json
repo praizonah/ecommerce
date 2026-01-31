@@ -14,24 +14,15 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.js",
-      "cache": {
-        "maxAge": 60
-      }
+      "dest": "/api/index.js"
     },
     {
       "src": "/public/(.*)",
-      "dest": "/public/$1",
-      "cache": {
-        "maxAge": 86400
-      }
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$)",
-      "dest": "/public/$1",
-      "cache": {
-        "maxAge": 31536000
-      }
+      "dest": "/public/$1"
     },
     {
       "src": "/health",
